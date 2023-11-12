@@ -49,3 +49,10 @@ add_custom_target(copy-shader
   VERBATIM
 )
 add_dependencies(sine-wave copy-shader)
+
+add_custom_target(archive
+  COMMAND git archive --format=zip --prefix=src/ -o src.zip HEAD
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMENT "Archive the source code"
+  VERBATIM
+)
