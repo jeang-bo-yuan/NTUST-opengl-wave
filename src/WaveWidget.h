@@ -4,6 +4,7 @@
 
 #include <glad/gl.h>
 #include <QOpenGLWidget>
+#include <QTimer>
 #include <glm/mat4x4.hpp>
 #include <Shader.h>
 
@@ -41,8 +42,11 @@ private:
     glm::mat4x4 m_view_matrix;
     glm::mat4x4 m_proj_matrix;
     glm::vec3 m_eye_pos;
+    GLuint m_frame;
 
     Shader* m_shader_p;
+
+    QTimer m_timer;
 };
 
 #endif // WAVEWIDGET_H

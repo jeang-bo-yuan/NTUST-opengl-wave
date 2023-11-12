@@ -25,7 +25,7 @@ MessageCallback( GLenum source,
 
 
 WaveWidget::WaveWidget(QWidget *parent)
-    : QOpenGLWidget(parent), m_shader_p(nullptr)
+    : QOpenGLWidget(parent), m_frame(0), m_shader_p(nullptr)
 {
 }
 
@@ -58,6 +58,11 @@ void WaveWidget::initializeGL()
     // During init, enable debug output
     glEnable              ( GL_DEBUG_OUTPUT );
     glDebugMessageCallback( MessageCallback, 0 );
+
+    // set up timer
+    m_timer.setInterval(60);
+    connect(&m_timer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
+    m_timer.start();
 }
 
 void WaveWidget::resizeGL(int w, int h)
@@ -74,6 +79,9 @@ void WaveWidget::paintGL()
     this->set_uniform_data();
 
     glDrawElements(GL_TRIANGLES, m_num_of_elements, GL_UNSIGNED_INT, (void*)0);
+
+    qDebug() << m_frame;
+    ++m_frame;
 }
 
 void WaveWidget::init_VAO()
@@ -158,6 +166,11 @@ void WaveWidget::set_uniform_data()
         glGetUniformLocation(m_shader_p->Program, "eye_position"),
         1, // 1 vec3
         glm::value_ptr(m_eye_pos)
+    );
+
+    glUniform1ui(
+        glGetUniformLocation(m_shader_p->Program, "frame"),
+        m_frame
     );
 }
 
