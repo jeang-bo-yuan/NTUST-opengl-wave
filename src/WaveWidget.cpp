@@ -25,7 +25,9 @@ MessageCallback( GLenum source,
 
 
 WaveWidget::WaveWidget(QWidget *parent)
-    : QOpenGLWidget(parent), m_frame(0), m_shader_p(nullptr)
+    : QOpenGLWidget(parent), m_frame(0),
+    m_Arc_Ball(glm::vec3(0, 0, 0), 3, glm::radians(45.f), glm::radians(20.f)),
+    m_shader_p(nullptr)
 {
 }
 
@@ -42,10 +44,6 @@ void WaveWidget::initializeGL()
         qApp->exit(EXIT_FAILURE);
     }
     qDebug() << "Load OpenGL " << GLAD_VERSION_MAJOR(version) << '.' << GLAD_VERSION_MINOR(version);
-
-    // set view matrix
-    m_eye_pos = glm::vec3(2, 1, 2);
-    m_view_matrix = glm::lookAt(m_eye_pos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
     // set shader
     m_shader_p = new Shader("shader/wave.vert", nullptr, nullptr, nullptr, "shader/wave.frag");
@@ -67,7 +65,7 @@ void WaveWidget::initializeGL()
 
 void WaveWidget::resizeGL(int w, int h)
 {
-    m_proj_matrix = glm::perspective(50.f * 3.14f / 180.f, (float)w / h, 200.f, 0.1f);
+    m_proj_matrix = glm::perspective(glm::radians(50.f), (float)w / h, 200.f, 0.1f);
 }
 
 void WaveWidget::paintGL()
@@ -149,23 +147,23 @@ void WaveWidget::init_VAO()
 void WaveWidget::set_uniform_data()
 {
     glUniformMatrix4fv(
-        glGetUniformLocation(m_shader_p->Program, "view_matrix"),
-        1, // 1 matrix
-        false, // don't transpose
-        glm::value_ptr(m_view_matrix)
-    );
-
-    glUniformMatrix4fv(
         glGetUniformLocation(m_shader_p->Program, "proj_matrix"),
         1, // 1 matrix
         false, // don't transpose
         glm::value_ptr(m_proj_matrix)
     );
 
+    glUniformMatrix4fv(
+        glGetUniformLocation(m_shader_p->Program, "view_matrix"),
+        1, // 1 matrix
+        false, // don't transpose
+        glm::value_ptr(m_Arc_Ball.view_matrix())
+    );
+
     glUniform3fv(
         glGetUniformLocation(m_shader_p->Program, "eye_position"),
         1, // 1 vec3
-        glm::value_ptr(m_eye_pos)
+        glm::value_ptr(m_Arc_Ball.calc_pos())
     );
 
     glUniform1ui(

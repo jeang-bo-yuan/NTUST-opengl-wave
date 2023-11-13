@@ -5,9 +5,9 @@
 #include <glad/gl.h>
 #include <QOpenGLWidget>
 #include <QTimer>
-#include <glm/mat4x4.hpp>
 #include <Shader.h>
 
+#include "ArcBall.h"
 
 /**
  * @brief An OpenGL Widget that display sine-wave water
@@ -39,10 +39,10 @@ private:
     /// the length of the element array
     GLsizei m_num_of_elements;
 
-    glm::mat4x4 m_view_matrix;
     glm::mat4x4 m_proj_matrix;
-    glm::vec3 m_eye_pos;
     GLuint m_frame;
+
+    ArcBall m_Arc_Ball;
 
     Shader* m_shader_p;
 

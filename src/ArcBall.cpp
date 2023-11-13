@@ -1,0 +1,31 @@
+
+#include "ArcBall.h"
+#include <glm/gtc/matrix_transform.hpp>
+
+ArcBall::ArcBall(glm::vec3 center, float r, float alpha, float beta)
+    : m_center(center), m_r(r), m_alpha(alpha)
+{
+    this->set_beta(beta);
+}
+
+glm::vec3 ArcBall::calc_pos() const
+{
+    return glm::vec3(
+        m_r * glm::cos(m_beta) * glm::cos(m_alpha),
+        m_r * glm::sin(m_beta),
+        m_r * glm::cos(m_beta) * glm::sin(m_alpha)
+        );
+}
+
+glm::mat4 ArcBall::view_matrix() const
+{
+    glm::vec3 eye = this->calc_pos();
+    glm::vec3 up(
+        - glm::cos(m_alpha) * glm::sin(m_beta),
+          glm::cos(m_beta),
+        - glm::sin(m_alpha) * glm::sin(m_beta)
+    );
+
+    return glm::lookAt(eye, m_center, up);
+}
+
