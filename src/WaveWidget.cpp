@@ -70,7 +70,7 @@ void WaveWidget::initializeGL()
 
 void WaveWidget::resizeGL(int w, int h)
 {
-    m_proj_matrix = glm::perspective(glm::radians(50.f), (float)w / h, 200.f, 0.1f);
+    m_proj_matrix = glm::perspective(glm::radians(50.f), (float)w / h, 0.1f, 200.f);
     m_perspective_changed = true;
 }
 
