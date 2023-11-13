@@ -25,6 +25,10 @@ protected:
     void resizeGL(int w, int h) override;
     void paintGL() override;
 
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
+
 private:
     void init_VAO();
     /// set uniform data for the shader
@@ -47,6 +51,11 @@ private:
     GLuint m_frame;
 
     ArcBall m_Arc_Ball;
+
+    QPoint m_last_clicked;
+    float m_last_alpha;
+    float m_last_beta;
+    bool m_eye_pos_changed;
 
     bool m_perspective_changed;
 };

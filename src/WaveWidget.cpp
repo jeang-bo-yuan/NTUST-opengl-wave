@@ -1,11 +1,15 @@
 
 #include "WaveWidget.h"
+
 #include <QMessageBox>
 #include <QApplication>
 #include <QDebug>
 #include <QtGlobal>
+#include <QMouseEvent>
+
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 #include <stddef.h>
 
 void GLAPIENTRY
@@ -27,7 +31,7 @@ MessageCallback( GLenum source,
 WaveWidget::WaveWidget(QWidget *parent)
     : QOpenGLWidget(parent), m_shader_p(nullptr), m_frame(0),
     m_Arc_Ball(glm::vec3(0, 0, 0), 3, glm::radians(45.f), glm::radians(20.f)),
-    m_perspective_changed(true)
+    m_eye_pos_changed(true), m_perspective_changed(true)
 {
 }
 
@@ -52,13 +56,14 @@ void WaveWidget::initializeGL()
     this->init_VAO();
 
     glClearColor(.5f, .5f, .5f, 1.f);
+    glEnable(GL_DEPTH_TEST);
 
     // During init, enable debug output
     glEnable              ( GL_DEBUG_OUTPUT );
     glDebugMessageCallback( MessageCallback, 0 );
 
     // set up timer
-    m_timer.setInterval(60);
+    m_timer.setInterval(20);
     connect(&m_timer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
     m_timer.start();
 }
@@ -71,7 +76,7 @@ void WaveWidget::resizeGL(int w, int h)
 
 void WaveWidget::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindVertexArray(m_water_VAO);
     glUseProgram(m_shader_p->Program);
@@ -81,6 +86,29 @@ void WaveWidget::paintGL()
 
     qDebug() << m_frame;
     ++m_frame;
+}
+
+void WaveWidget::mousePressEvent(QMouseEvent *e)
+{
+    this->setMouseTracking(true);
+    m_last_clicked = e->pos();
+    m_last_alpha = m_Arc_Ball.alpha();
+    m_last_beta = m_Arc_Ball.beta();
+}
+
+void WaveWidget::mouseMoveEvent(QMouseEvent *e)
+{
+    int delta_x = e->x() - m_last_clicked.x();
+    int delta_y = e->y() - m_last_clicked.y();
+
+    m_Arc_Ball.set_alpha(m_last_alpha + glm::radians<float>(delta_x));
+    m_Arc_Ball.set_beta(m_last_beta + glm::radians<float>(delta_y));
+    m_eye_pos_changed = true;
+}
+
+void WaveWidget::mouseReleaseEvent(QMouseEvent *e)
+{
+    this->setMouseTracking(false);
 }
 
 void WaveWidget::init_VAO()
@@ -158,18 +186,22 @@ void WaveWidget::set_uniform_data()
         m_perspective_changed = false;
     }
 
-    glUniformMatrix4fv(
-        glGetUniformLocation(m_shader_p->Program, "view_matrix"),
-        1, // 1 matrix
-        false, // don't transpose
-        glm::value_ptr(m_Arc_Ball.view_matrix())
-    );
+    if (m_eye_pos_changed) {
+        glUniformMatrix4fv(
+            glGetUniformLocation(m_shader_p->Program, "view_matrix"),
+            1, // 1 matrix
+            false, // don't transpose
+            glm::value_ptr(m_Arc_Ball.view_matrix())
+        );
 
-    glUniform3fv(
-        glGetUniformLocation(m_shader_p->Program, "eye_position"),
-        1, // 1 vec3
-        glm::value_ptr(m_Arc_Ball.calc_pos())
-    );
+        glUniform3fv(
+            glGetUniformLocation(m_shader_p->Program, "eye_position"),
+            1, // 1 vec3
+            glm::value_ptr(m_Arc_Ball.calc_pos())
+        );
+        qDebug() << "Eye Position changed";
+        m_eye_pos_changed = false;
+    }
 
     glUniform1ui(
         glGetUniformLocation(m_shader_p->Program, "frame"),
