@@ -25,9 +25,9 @@ MessageCallback( GLenum source,
 
 
 WaveWidget::WaveWidget(QWidget *parent)
-    : QOpenGLWidget(parent), m_frame(0),
+    : QOpenGLWidget(parent), m_shader_p(nullptr), m_frame(0),
     m_Arc_Ball(glm::vec3(0, 0, 0), 3, glm::radians(45.f), glm::radians(20.f)),
-    m_shader_p(nullptr), m_perspective_changed(true)
+    m_perspective_changed(true)
 {
 }
 

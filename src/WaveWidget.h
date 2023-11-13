@@ -39,14 +39,14 @@ private:
     /// the length of the element array
     GLsizei m_num_of_elements;
 
+    Shader* m_shader_p;
+
+    QTimer m_timer;
+
     glm::mat4x4 m_proj_matrix;
     GLuint m_frame;
 
     ArcBall m_Arc_Ball;
-
-    Shader* m_shader_p;
-
-    QTimer m_timer;
 
     bool m_perspective_changed;
 };
