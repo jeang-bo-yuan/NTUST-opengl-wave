@@ -27,7 +27,7 @@ MessageCallback( GLenum source,
 WaveWidget::WaveWidget(QWidget *parent)
     : QOpenGLWidget(parent), m_frame(0),
     m_Arc_Ball(glm::vec3(0, 0, 0), 3, glm::radians(45.f), glm::radians(20.f)),
-    m_shader_p(nullptr)
+    m_shader_p(nullptr), m_perspective_changed(true)
 {
 }
 
@@ -66,6 +66,7 @@ void WaveWidget::initializeGL()
 void WaveWidget::resizeGL(int w, int h)
 {
     m_proj_matrix = glm::perspective(glm::radians(50.f), (float)w / h, 200.f, 0.1f);
+    m_perspective_changed = true;
 }
 
 void WaveWidget::paintGL()
@@ -146,12 +147,16 @@ void WaveWidget::init_VAO()
 
 void WaveWidget::set_uniform_data()
 {
-    glUniformMatrix4fv(
-        glGetUniformLocation(m_shader_p->Program, "proj_matrix"),
-        1, // 1 matrix
-        false, // don't transpose
-        glm::value_ptr(m_proj_matrix)
-    );
+    if (m_perspective_changed) {
+        glUniformMatrix4fv(
+            glGetUniformLocation(m_shader_p->Program, "proj_matrix"),
+            1, // 1 matrix
+            false, // don't transpose
+            glm::value_ptr(m_proj_matrix)
+        );
+        qDebug() << "Perspective Matrix is changed";
+        m_perspective_changed = false;
+    }
 
     glUniformMatrix4fv(
         glGetUniformLocation(m_shader_p->Program, "view_matrix"),

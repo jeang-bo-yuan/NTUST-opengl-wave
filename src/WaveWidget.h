@@ -47,6 +47,8 @@ private:
     Shader* m_shader_p;
 
     QTimer m_timer;
+
+    bool m_perspective_changed;
 };
 
 #endif // WAVEWIDGET_H
