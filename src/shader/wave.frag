@@ -1,3 +1,4 @@
+#version 430 core
 in vec3 vs_world_pos;
 in vec3 vs_normal;
 
