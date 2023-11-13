@@ -1,4 +1,7 @@
-
+/**
+ * @file ArcBall.h
+ * @brief 球面座標系
+ */
 #ifndef ARCBALL_H
 #define ARCBALL_H
 
@@ -10,7 +13,7 @@
  * @details
  * # 參數的意義
  * - center: 球心的位置
- * - r: 球的半徑，介於`[0, infinity)`間
+ * - r: 球的半徑，介於`[0.1, infinity)`間
  * - alpha: 從正x軸向正z軸旋轉的角度
  * - beta: 從正x軸向正y軸旋轉的角度，介於`[-pi/2, pi/2]`間
  *
@@ -23,7 +26,7 @@ public:
     /**
      * @brief 建構子
      * @param center - 球心
-     * @param r - 球的半徑，會被clamped到`[0, infinity)`間
+     * @param r - 球的半徑，會被clamped到`[0.1, infinity)`間
      * @param alpha - 從正x軸向正z軸旋轉的角度
      * @param beta - 從正x軸向正y軸旋轉的角度，會被clamped到`[-pi/2, pi/2]`間
      */
@@ -58,7 +61,7 @@ public:
     float r() const { return m_r; }
 
     /// Set r. The value will be clamped
-    void set_r(float r) { m_r = glm::max(r, 0.f); }
+    void set_r(float r) { m_r = glm::max(r, 0.1f); }
 
     /// Get alpha
     float alpha() const { return m_alpha; }

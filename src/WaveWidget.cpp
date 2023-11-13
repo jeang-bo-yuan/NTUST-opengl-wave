@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QtGlobal>
 #include <QMouseEvent>
+#include <QWheelEvent>
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -49,20 +50,20 @@ void WaveWidget::initializeGL()
     }
     qDebug() << "Load OpenGL " << GLAD_VERSION_MAJOR(version) << '.' << GLAD_VERSION_MINOR(version);
 
-    // set shader
+    /// set shader
     m_shader_p = new Shader("shader/wave.vert", nullptr, nullptr, nullptr, "shader/wave.frag");
 
-    // initialize the VAO
+    /// initialize the VAO
     this->init_VAO();
 
     glClearColor(.5f, .5f, .5f, 1.f);
     glEnable(GL_DEPTH_TEST);
 
-    // During init, enable debug output
+    /// During init, enable debug output
     glEnable              ( GL_DEBUG_OUTPUT );
     glDebugMessageCallback( MessageCallback, 0 );
 
-    // set up timer
+    /// set up timer
     m_timer.setInterval(20);
     connect(&m_timer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
     m_timer.start();
@@ -111,9 +112,22 @@ void WaveWidget::mouseReleaseEvent(QMouseEvent *e)
     this->setMouseTracking(false);
 }
 
+void WaveWidget::wheelEvent(QWheelEvent *e)
+{
+    QPoint degree_move = e->angleDelta();
+    qDebug() << "Wheel is scrolled";
+
+    if (!degree_move.isNull()) {
+        m_Arc_Ball.set_r(m_Arc_Ball.r() + degree_move.y() / 8 / 15);
+    }
+
+    m_eye_pos_changed = true;
+
+}
+
 void WaveWidget::init_VAO()
 {
-    constexpr size_t size = 33;
+    constexpr int size = 33;
     constexpr float delta = 2.f / (size - 1);
     // 畫在(-1, -1) ~ (1, 1)
     // 每條邊取33個點（含兩側）
