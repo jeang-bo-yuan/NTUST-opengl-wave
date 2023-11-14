@@ -118,7 +118,7 @@ void WaveWidget::wheelEvent(QWheelEvent *e)
     qDebug() << "Wheel is scrolled";
 
     if (!degree_move.isNull()) {
-        m_Arc_Ball.set_r(m_Arc_Ball.r() + degree_move.y() / 8 / 15);
+        m_Arc_Ball.set_r(m_Arc_Ball.r() + degree_move.y() / 120.f);
     }
 
     m_eye_pos_changed = true;
