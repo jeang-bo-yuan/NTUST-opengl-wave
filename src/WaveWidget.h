@@ -10,7 +10,10 @@
 #include <QTimer>
 #include <Shader.h>
 
+#include <memory>
+
 #include "ArcBall.h"
+#include "Wave_VAO.h"
 
 /**
  * @brief An OpenGL Widget that display sine-wave water
@@ -42,20 +45,13 @@ protected:
     void wheelEvent(QWheelEvent*) override;
 
 private:
-    void init_VAO();
     /// set uniform data for the shader
     void set_uniform_data();
 
 private:
-    /// @brief Vertex Array Object for the water surface
-    /// @details
-    /// - attribute: [0]={point array}
-    /// - element array: 數個三角形
-    GLuint m_water_VAO;
-    /// the length of the element array
-    GLsizei m_num_of_elements;
+    std::unique_ptr<Wave_VAO> m_wave_VAO_p;
 
-    Shader* m_shader_p;
+    std::unique_ptr<Shader> m_shader_p;
 
     /// 每隔一段時間會更新這個widget一次
     QTimer m_timer;
