@@ -31,6 +31,32 @@ MessageCallback( GLenum source,
     QMessageBox::warning(nullptr, "OpenGL CallBack", text);
 }
 
+// Slots ////////////////////////////////////////////
+
+void WaveWidget::use_normal_color()
+{
+    this->makeCurrent();
+    m_shader_p->Use();
+    glUniform1ui(glGetUniformLocation(m_shader_p->Program, "how_to_render"), 0);
+    this->doneCurrent();
+}
+
+void WaveWidget::use_reflect()
+{
+    this->makeCurrent();
+    m_shader_p->Use();
+    glUniform1ui(glGetUniformLocation(m_shader_p->Program, "how_to_render"), 1);
+    this->doneCurrent();
+}
+
+void WaveWidget::use_refract()
+{
+    this->makeCurrent();
+    m_shader_p->Use();
+    glUniform1ui(glGetUniformLocation(m_shader_p->Program, "how_to_render"), 2);
+    this->doneCurrent();
+}
+
 // Ctor & Dtor ///////////////////////////////////////
 
 WaveWidget::WaveWidget(QWidget *parent)

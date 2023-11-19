@@ -4,16 +4,35 @@ in vec3 vs_normal;
 
 uniform vec3 eye_position;
 uniform samplerCube skybox;
+uniform uint how_to_render = 0;
 
 out vec4 FragColor;
 
 vec4 applyLight();
 
 void main() {
-  vec3 I = normalize(vs_world_pos - eye_position);
-  vec3 R = reflect(I, vs_normal);
-  FragColor = texture(skybox, R);
-  //FragColor = applyLight();
+  if (how_to_render == 0) {
+    FragColor = vec4(1, 1, 1, 1);
+    FragColor = applyLight();
+  }
+  else {
+    vec3 I = normalize(vs_world_pos - eye_position);
+    vec3 normal = vs_normal;
+
+    if (dot(normal, I) > 0)
+      normal = -vs_normal;
+
+    vec3 R;
+    if (how_to_render == 1) {
+      R = reflect(I, normal);
+    }
+    else if (how_to_render == 2) {
+      R = refract(I, normal, 1.f / 1.52f);
+    }
+
+    FragColor = texture(skybox, R);
+  }
+
 }
 
 uniform vec4 color_ambient = vec4(0.1, 0.2, 0.5, 1.0);

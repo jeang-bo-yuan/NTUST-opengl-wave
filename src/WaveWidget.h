@@ -24,6 +24,14 @@ class WaveWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
+public slots:
+    /// 使用原本的方法著色
+    void use_normal_color();
+    /// 讓水波反射cube map
+    void use_reflect();
+    /// 讓水波折射cube map
+    void use_refract();
+
 public:
     WaveWidget(QWidget *parent = nullptr);
     ~WaveWidget();
