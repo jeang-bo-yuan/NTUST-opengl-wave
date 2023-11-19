@@ -14,6 +14,8 @@
 
 #include "ArcBall.h"
 #include "Wave_VAO.h"
+#include "Box_VAO.h"
+#include "qtTextureCubeMap.h"
 
 /**
  * @brief An OpenGL Widget that display sine-wave water
@@ -45,13 +47,18 @@ protected:
     void wheelEvent(QWheelEvent*) override;
 
 private:
-    /// set uniform data for the shader
+    /// 為目前的shader設置uniform data
     void set_uniform_data();
 
 private:
+    // sine wave
     std::unique_ptr<Wave_VAO> m_wave_VAO_p;
-
     std::unique_ptr<Shader> m_shader_p;
+
+    // skybox
+    std::unique_ptr<Box_VAO> m_skybox_VAO_p;
+    std::unique_ptr<qtTextureCubeMap> m_texture_cube_map_p;
+    std::unique_ptr<Shader> m_skybox_shader_p;
 
     /// 每隔一段時間會更新這個widget一次
     QTimer m_timer;

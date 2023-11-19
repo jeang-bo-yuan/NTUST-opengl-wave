@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="back.jpg">img/back.jpg</file>
+        <file alias="bottom.jpg">img/bottom.jpg</file>
+        <file alias="front.jpg">img/front.jpg</file>
+        <file alias="left.jpg">img/left.jpg</file>
+        <file alias="right.jpg">img/right.jpg</file>
+        <file alias="top.jpg">img/top.jpg</file>
+    </qresource>
+</RCC>

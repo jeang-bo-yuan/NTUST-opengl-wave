@@ -22,10 +22,13 @@ MessageCallback( GLenum source,
                 const GLchar* message,
                 const void* userParam )
 {
-    fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-            ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
-            type, severity, message );
-    fflush(stderr);
+    QString text("GL CALLBACK: %1 type = 0x%2, severity = 0x%3, message = %4\n");
+    text = text.arg(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "",
+                    QString::number(type, 16),
+                    QString::number(severity, 16),
+                    message);
+
+    QMessageBox::warning(nullptr, "OpenGL CallBack", text);
 }
 
 // Ctor & Dtor ///////////////////////////////////////
@@ -45,18 +48,33 @@ WaveWidget::~WaveWidget()
 
 void WaveWidget::initializeGL()
 {
+    /// glad load OpenGL
     int version = gladLoaderLoadGL();
     if (version == 0) {
         QMessageBox::critical(this, "OpenGL Load Fail", "Cannot Load OpenGL");
-        qApp->exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE); // QT event loop hasn't start, so call exit() instead of qApp->exit()
     }
     qDebug() << "Load OpenGL " << GLAD_VERSION_MAJOR(version) << '.' << GLAD_VERSION_MINOR(version);
 
-    /// set shader
-    m_shader_p = std::make_unique<Shader>("shader/wave.vert", nullptr, nullptr, nullptr, "shader/wave.frag");
+    /// @todo load texture
+    try {
+        m_texture_cube_map_p = std::make_unique<qtTextureCubeMap>(":/right.jpg", ":/left.jpg", ":/top.jpg", ":/bottom.jpg", ":/front.jpg", ":/back.jpg");
+    }
+    catch (std::invalid_argument& ex) {
+        QMessageBox::critical(this, "Load fail", ex.what());
+        exit(EXIT_FAILURE);
+    }
+    m_texture_cube_map_p->bind_to(0);
 
-    /// initialize the VAO
+    /// @todo set shader
+    m_shader_p = std::make_unique<Shader>("shader/wave.vert", nullptr, nullptr, nullptr, "shader/wave.frag");
+    m_skybox_shader_p = std::make_unique<Shader>("shader/skybox.vert", nullptr, nullptr, nullptr, "shader/skybox.frag");
+    m_skybox_shader_p->Use();
+    glUniform1ui(glGetUniformLocation(m_skybox_shader_p->Program, "skybox"), 0);
+
+    /// @todo initialize the VAO
     m_wave_VAO_p = std::make_unique<Wave_VAO>();
+    m_skybox_VAO_p = std::make_unique<Box_VAO>(100);
 
     glClearColor(.5f, .5f, .5f, 1.f);
     glEnable(GL_DEPTH_TEST);
@@ -87,7 +105,13 @@ void WaveWidget::paintGL()
     this->set_uniform_data();
     m_wave_VAO_p->draw();
 
+    m_skybox_shader_p->Use();
+    this->set_uniform_data();
+    m_skybox_VAO_p->draw();
+
     ++m_frame;
+    m_perspective_changed = false;
+    m_eye_pos_changed = false;
 }
 
 // Mouse Event ////////////////////////////////////////////
@@ -134,36 +158,37 @@ void WaveWidget::wheelEvent(QWheelEvent *e)
 
 void WaveWidget::set_uniform_data()
 {
+    GLint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
     if (m_perspective_changed) {
         glUniformMatrix4fv(
-            glGetUniformLocation(m_shader_p->Program, "proj_matrix"),
+            glGetUniformLocation(program, "proj_matrix"),
             1, // 1 matrix
             false, // don't transpose
             glm::value_ptr(m_proj_matrix)
         );
         qDebug() << "Perspective Matrix is changed";
-        m_perspective_changed = false;
     }
 
     if (m_eye_pos_changed) {
         glUniformMatrix4fv(
-            glGetUniformLocation(m_shader_p->Program, "view_matrix"),
+            glGetUniformLocation(program, "view_matrix"),
             1, // 1 matrix
             false, // don't transpose
             glm::value_ptr(m_Arc_Ball.view_matrix())
         );
 
         glUniform3fv(
-            glGetUniformLocation(m_shader_p->Program, "eye_position"),
+            glGetUniformLocation(program, "eye_position"),
             1, // 1 vec3
             glm::value_ptr(m_Arc_Ball.calc_pos())
         );
         qDebug() << "Eye Position changed";
-        m_eye_pos_changed = false;
     }
 
     glUniform1ui(
-        glGetUniformLocation(m_shader_p->Program, "frame"),
+        glGetUniformLocation(program, "frame"),
         m_frame
     );
 }
