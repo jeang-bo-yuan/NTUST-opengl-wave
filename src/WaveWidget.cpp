@@ -68,6 +68,8 @@ void WaveWidget::initializeGL()
 
     /// @todo set shader
     m_shader_p = std::make_unique<Shader>("shader/wave.vert", nullptr, nullptr, nullptr, "shader/wave.frag");
+    m_shader_p->Use();
+    glUniform1ui(glGetUniformLocation(m_shader_p->Program, "skybox"), 0);
     m_skybox_shader_p = std::make_unique<Shader>("shader/skybox.vert", nullptr, nullptr, nullptr, "shader/skybox.frag");
     m_skybox_shader_p->Use();
     glUniform1ui(glGetUniformLocation(m_skybox_shader_p->Program, "skybox"), 0);

@@ -2,13 +2,18 @@
 in vec3 vs_world_pos;
 in vec3 vs_normal;
 
+uniform vec3 eye_position;
+uniform samplerCube skybox;
+
 out vec4 FragColor;
 
 vec4 applyLight();
 
 void main() {
-  FragColor = vec4(1, 1, 1, 1);
-  FragColor = applyLight();
+  vec3 I = normalize(vs_world_pos - eye_position);
+  vec3 R = reflect(I, vs_normal);
+  FragColor = texture(skybox, R);
+  //FragColor = applyLight();
 }
 
 uniform vec4 color_ambient = vec4(0.1, 0.2, 0.5, 1.0);
@@ -16,7 +21,6 @@ uniform vec4 color_diffuse = vec4(0.2, 0.3, 0.6, 1.0);
 uniform vec4 color_specular = vec4(1.0, 1.0, 1.0, 1.0);
 uniform float shininess = 77.0f;
 uniform vec3 light_position = vec3(0, 2, 0);
-uniform vec3 eye_position;
 
 vec4 applyLight() {
     vec3 light_direction = normalize(light_position - vs_world_pos);

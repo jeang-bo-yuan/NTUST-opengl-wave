@@ -23,6 +23,7 @@
 |Type|Name|Description|
 |--- |--- |---        |
 |vec3|eye_position|眼睛的位置|
+|samplerCube|skybox|Skybox的texture|
 
 ## VAO
 
