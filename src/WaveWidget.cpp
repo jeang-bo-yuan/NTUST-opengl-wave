@@ -102,7 +102,7 @@ void WaveWidget::initializeGL()
 
     /// @todo initialize the VAO
     m_wave_VAO_p = std::make_unique<Wave_VAO>();
-    m_skybox_VAO_p = std::make_unique<Box_VAO>(100);
+    m_skybox_VAO_p = std::make_unique<Box_VAO>(50);
 
     glClearColor(.5f, .5f, .5f, 1.f);
     glEnable(GL_DEPTH_TEST);
@@ -131,7 +131,16 @@ void WaveWidget::paintGL()
 
     glUseProgram(m_shader_p->Program);
     this->set_uniform_data();
-    m_wave_VAO_p->draw();
+
+    constexpr glm::vec3 translates[9] = {
+        glm::vec3(-2, 0, -2), glm::vec3(0, 0, -2), glm::vec3(2, 0, -2),
+        glm::vec3(-2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(2, 0, 0),
+        glm::vec3(-2, 0, 2), glm::vec3(0, 0, 2), glm::vec3(2, 0, 2)
+    };
+    for (const glm::vec3& translate : translates) {
+        this->set_translate(translate);
+        m_wave_VAO_p->draw();
+    }
 
     m_skybox_shader_p->Use();
     this->set_uniform_data();
@@ -218,7 +227,15 @@ void WaveWidget::set_uniform_data()
     glUniform1ui(
         glGetUniformLocation(program, "frame"),
         m_frame
-    );
+        );
+}
+
+void WaveWidget::set_translate(const glm::vec3 &translate)
+{
+    GLint program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+    glUniform3f(glGetUniformLocation(program, "translate"), translate.x, translate.y, translate.z);
 }
 
 

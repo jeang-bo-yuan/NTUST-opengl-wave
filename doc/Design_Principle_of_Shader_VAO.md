@@ -14,6 +14,7 @@
 
 |Type|Name|Description|
 |--- |--- |---        |
+|vec3|translate|平移的向量，傳進來的點會加上這向量以取得最終位置|
 |mat4|view_matrix|將世界座標轉成視空間座標的矩陣|
 |mat4|proj_matrix|將視空間轉成clip coordinate的矩陣|
 |uint|frame|目前是第幾幀|

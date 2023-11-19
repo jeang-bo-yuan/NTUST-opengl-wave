@@ -58,6 +58,9 @@ private:
     /// 為目前的shader設置uniform data
     void set_uniform_data();
 
+    /// 為目前的shader設置translate vector
+    void set_translate(const glm::vec3& translate);
+
 private:
     // sine wave
     std::unique_ptr<Wave_VAO> m_wave_VAO_p;
