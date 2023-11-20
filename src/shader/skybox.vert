@@ -9,7 +9,6 @@ uniform uint frame;
 out vec3 tex_coord;
 
 void main() {
-  vec3 real_pos = position + translate;
-  gl_Position = proj_matrix * view_matrix * vec4(real_pos, 1);
+  gl_Position = proj_matrix * mat4(mat3(view_matrix)) * vec4(position, 1);
   tex_coord = position;
 }
