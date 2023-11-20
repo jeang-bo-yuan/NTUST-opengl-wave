@@ -30,7 +30,7 @@ void main() {
       R = refract(I, normal, 1.f / 1.33f);
     }
 
-    FragColor = texture(skybox, R + vs_world_pos);
+    FragColor = texture(skybox, R);
   }
 
 }
