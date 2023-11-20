@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 
     WaveWidget* wave = new WaveWidget;
     vlayout->addWidget(wave);
+    vlayout->setStretch(1, 1);
     wave->setMinimumSize(1000, 600);
 
     // connect

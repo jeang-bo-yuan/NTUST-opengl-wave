@@ -27,10 +27,10 @@ void main() {
       R = reflect(I, normal);
     }
     else if (how_to_render == 2) {
-      R = refract(I, normal, 1.f / 1.52f);
+      R = refract(I, normal, 1.f / 1.33f);
     }
 
-    FragColor = texture(skybox, R);
+    FragColor = texture(skybox, R + vs_world_pos);
   }
 
 }
