@@ -1,50 +1,49 @@
 
 #include "Wave_VAO.h"
 #include <glm/vec3.hpp>
+#include <vector>
 #include <assert.h>
 
-Wave_VAO::Wave_VAO()
+Wave_VAO::Wave_VAO(GLfloat size)
     : VAO_Interface()
 {
-    constexpr int size = 33;
-    constexpr float delta = 2.f / (size - 1);
-    // 畫在(-1, 0, -1) ~ (1, 0, 1)
-    // 每條邊取33個點（含兩側）
-    glm::vec3 point_arr[size][size];
+    const float delta = 1 / 16.f;
+    // 畫在(-size, 0, -size) ~ (size, 0, size)
+    // 每 1/16 取一個點
+    std::vector<glm::vec3> point_arr;
+    GLuint width = 0;
+    point_arr.reserve((32 * size + 1) * (32 * size + 1));
     {
-        float z = -1.f;
-        for (int r = 0; r < size; ++r) {
-            float x = -1.f;
-            for (int c = 0; c < size; ++c) {
-                point_arr[r][c] = glm::vec3(x, 0, z);
-                x += delta;
+        for (float z = -size; z <= size; z += delta) {
+            for (float x = -size; x <= size; x += delta) {
+                point_arr.emplace_back(x, 0, z);
             }
-            z += delta;
+            ++width;
         }
     }
+    assert(point_arr.size() == (width * width));
 
     // 生成element array
-    GLuint elem_arr[(size - 1) * (size - 1) * 2 * 3];
-    m_num_of_elements = sizeof(elem_arr) / sizeof(GLuint);
+    std::vector<GLuint> elem_arr;
+    elem_arr.reserve((32 * size) * (32 * size) * 2 * 3);
     {
-        auto to_index = [size = size](int r, int c)->int {
-            return r * size + c;
+        auto to_index = [width](GLuint r, GLuint c)->GLuint {
+            return r * width + c;
         };
 
-        int i = 0;
-        for (int r = 0; r < size - 1; ++r) {
-            for (int c = 0; c < size - 1; ++c) {
-                elem_arr[i++] = to_index(r, c);
-                elem_arr[i++] = to_index(r, c + 1);
-                elem_arr[i++] = to_index(r + 1, c);
+        for (GLuint r = 0; r < width - 1; ++r) {
+            for (GLuint c = 0; c < width - 1; ++c) {
+                elem_arr.push_back(to_index(r, c));
+                elem_arr.push_back(to_index(r + 1, c));
+                elem_arr.push_back(to_index(r, c + 1));
 
-                elem_arr[i++] = to_index(r + 1, c);
-                elem_arr[i++] = to_index(r, c + 1);
-                elem_arr[i++] = to_index(r + 1, c + 1);
+                elem_arr.push_back(to_index(r, c + 1));
+                elem_arr.push_back(to_index(r + 1, c));
+                elem_arr.push_back(to_index(r + 1, c + 1));
             }
         }
-        assert(i == m_num_of_elements);
     }
+    m_num_of_elements = elem_arr.size();
 
     glGenBuffers(1, &m_vbo_position);
     glGenBuffers(1, &m_ebo);
@@ -52,13 +51,13 @@ Wave_VAO::Wave_VAO()
 
     // VBO
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo_position);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(point_arr), point_arr, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, point_arr.size() * sizeof(glm::vec3), point_arr.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (void*)0);
     glEnableVertexAttribArray(0);
 
     // EBO
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elem_arr), elem_arr, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, elem_arr.size() * sizeof(GLuint), elem_arr.data(), GL_STATIC_DRAW);
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

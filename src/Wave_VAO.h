@@ -23,7 +23,8 @@ private:
 
 public:
     /// Constructor
-    Wave_VAO();
+    /// @param size - 水波的範圍：(-size, 0, -size) ~ (size, 0, size)
+    Wave_VAO(GLfloat size);
 
     /// Destructor
     ~Wave_VAO();

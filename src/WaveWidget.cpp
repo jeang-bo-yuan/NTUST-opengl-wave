@@ -101,7 +101,7 @@ void WaveWidget::initializeGL()
     glUniform1ui(glGetUniformLocation(m_skybox_shader_p->Program, "skybox"), 0);
 
     /// @todo initialize the VAO
-    m_wave_VAO_p = std::make_unique<Wave_VAO>();
+    m_wave_VAO_p = std::make_unique<Wave_VAO>(10);
     m_skybox_VAO_p = std::make_unique<Box_VAO>(50);
 
     glClearColor(.5f, .5f, .5f, 1.f);
@@ -129,22 +129,13 @@ void WaveWidget::paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(m_shader_p->Program);
-    this->set_uniform_data();
-
-    constexpr glm::vec3 translates[9] = {
-        glm::vec3(-2, 0, -2), glm::vec3(0, 0, -2), glm::vec3(2, 0, -2),
-        glm::vec3(-2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(2, 0, 0),
-        glm::vec3(-2, 0, 2), glm::vec3(0, 0, 2), glm::vec3(2, 0, 2)
-    };
-    for (const glm::vec3& translate : translates) {
-        this->set_translate(translate);
-        m_wave_VAO_p->draw();
-    }
-
     m_skybox_shader_p->Use();
     this->set_uniform_data();
     m_skybox_VAO_p->draw();
+
+    glUseProgram(m_shader_p->Program);
+    this->set_uniform_data();
+    m_wave_VAO_p->draw();
 
     ++m_frame;
     m_perspective_changed = false;
