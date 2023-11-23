@@ -29,6 +29,7 @@ MessageCallback( GLenum source,
                     message);
 
     QMessageBox::warning(nullptr, "OpenGL CallBack", text);
+    exit(EXIT_FAILURE);
 }
 
 // Slots ////////////////////////////////////////////
@@ -61,8 +62,7 @@ void WaveWidget::use_refract()
 
 WaveWidget::WaveWidget(QWidget *parent)
     : QOpenGLWidget(parent), m_shader_p(nullptr), m_frame(0),
-    m_Arc_Ball(glm::vec3(0, 0, 0), 3, glm::radians(45.f), glm::radians(20.f)),
-    m_eye_pos_changed(true), m_perspective_changed(true)
+    m_Arc_Ball(glm::vec3(0, 0, 0), 3, glm::radians(45.f), glm::radians(20.f))
 {
 }
 
@@ -104,6 +104,10 @@ void WaveWidget::initializeGL()
     m_wave_VAO_p = std::make_unique<Wave_VAO>(10);
     m_skybox_VAO_p = std::make_unique<Box_VAO>(50);
 
+    /// @todo initialize the UBO
+    m_matrices_UBO_p = std::make_unique<UBO>(2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW);
+    this->set_view_matrix_from_arc_ball();
+
     glClearColor(.5f, .5f, .5f, 1.f);
     glEnable(GL_DEPTH_TEST);
 
@@ -119,8 +123,11 @@ void WaveWidget::initializeGL()
 
 void WaveWidget::resizeGL(int w, int h)
 {
-    m_proj_matrix = glm::perspective(glm::radians(50.f), (float)w / h, 0.1f, 200.f);
-    m_perspective_changed = true;
+    glm::mat4 proj = glm::perspective(glm::radians(50.f), (float)w / h, 0.1f, 200.f);
+    // 更新UBO
+    this->makeCurrent();
+    m_matrices_UBO_p->BufferSubData(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
+    this->doneCurrent();
 }
 
 void WaveWidget::paintGL()
@@ -129,17 +136,18 @@ void WaveWidget::paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_skybox_shader_p->Use();
-    this->set_uniform_data();
-    m_skybox_VAO_p->draw();
+    m_matrices_UBO_p->bind_to(0);
 
-    glUseProgram(m_shader_p->Program);
-    this->set_uniform_data();
+    m_skybox_shader_p->Use();
+    glDepthMask(GL_FALSE);
+    m_skybox_VAO_p->draw();
+    glDepthMask(GL_TRUE);
+
+    m_shader_p->Use();
+    glUniform1ui(glGetUniformLocation(m_shader_p->Program, "frame"), m_frame);
     m_wave_VAO_p->draw();
 
     ++m_frame;
-    m_perspective_changed = false;
-    m_eye_pos_changed = false;
 }
 
 // Mouse Event ////////////////////////////////////////////
@@ -159,7 +167,10 @@ void WaveWidget::mouseMoveEvent(QMouseEvent *e)
 
     m_Arc_Ball.set_alpha(m_last_alpha + glm::radians<float>(delta_x));
     m_Arc_Ball.set_beta(m_last_beta + glm::radians<float>(delta_y));
-    m_eye_pos_changed = true;
+
+    this->makeCurrent();
+    this->set_view_matrix_from_arc_ball();
+    this->doneCurrent();
 }
 
 void WaveWidget::mouseReleaseEvent(QMouseEvent *e)
@@ -178,55 +189,24 @@ void WaveWidget::wheelEvent(QWheelEvent *e)
         m_Arc_Ball.set_r(m_Arc_Ball.r() + degree_move.y() / 120.f);
     }
 
-    m_eye_pos_changed = true;
-
+    this->makeCurrent();
+    this->set_view_matrix_from_arc_ball();
+    this->doneCurrent();
 }
 
-// Set Up Uniform Data //////////////////////////////////////
+// Private Methods /////////////////////////////////////////
 
-void WaveWidget::set_uniform_data()
+void WaveWidget::set_view_matrix_from_arc_ball()
 {
-    GLint program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+    glm::mat4 view = m_Arc_Ball.view_matrix();
+    m_matrices_UBO_p->BufferSubData(0, sizeof(glm::mat4), glm::value_ptr(view));
 
-    if (m_perspective_changed) {
-        glUniformMatrix4fv(
-            glGetUniformLocation(program, "proj_matrix"),
-            1, // 1 matrix
-            false, // don't transpose
-            glm::value_ptr(m_proj_matrix)
-        );
-        qDebug() << "Perspective Matrix is changed";
-    }
-
-    if (m_eye_pos_changed) {
-        glUniformMatrix4fv(
-            glGetUniformLocation(program, "view_matrix"),
-            1, // 1 matrix
-            false, // don't transpose
-            glm::value_ptr(m_Arc_Ball.view_matrix())
-        );
-
-        glUniform3fv(
-            glGetUniformLocation(program, "eye_position"),
-            1, // 1 vec3
-            glm::value_ptr(m_Arc_Ball.calc_pos())
-        );
-        qDebug() << "Eye Position changed";
-    }
-
-    glUniform1ui(
-        glGetUniformLocation(program, "frame"),
-        m_frame
-        );
-}
-
-void WaveWidget::set_translate(const glm::vec3 &translate)
-{
-    GLint program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
-    glUniform3f(glGetUniformLocation(program, "translate"), translate.x, translate.y, translate.z);
+    m_shader_p->Use();
+    glUniform3fv(
+        glGetUniformLocation(m_shader_p->Program, "eye_position"),
+        1,
+        glm::value_ptr(m_Arc_Ball.calc_pos())
+    );
 }
 
 

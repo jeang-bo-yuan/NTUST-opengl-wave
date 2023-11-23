@@ -10,14 +10,12 @@
 |-----|----|-------|
 |0    |vec3|頂點的座標|
 
-- Vertex Shader必需包含下列Uniform Data
+- Vertex Shader的Uniform Block必須遵守下列規範
 
-|Type|Name|Description|
-|--- |--- |---        |
-|vec3|translate|平移的向量，傳進來的點會加上這向量以取得最終位置|
-|mat4|view_matrix|將世界座標轉成視空間座標的矩陣|
-|mat4|proj_matrix|將視空間轉成clip coordinate的矩陣|
-|uint|frame|目前是第幾幀|
+|Binding|Type|Name|Description|
+|---    |--- |--- |---        |
+|0      |mat4|view_matrix|將世界座標轉成視空間座標的矩陣|
+|       |mat4|proj_matrix|將視空間轉成clip coordinate的矩陣|
 
 - Fragment Shader必需包含下列Uniform Data
 

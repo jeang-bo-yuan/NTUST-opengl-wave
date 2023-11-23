@@ -16,6 +16,7 @@
 #include "Wave_VAO.h"
 #include "Box_VAO.h"
 #include "qtTextureCubeMap.h"
+#include "UBO.h"
 
 /**
  * @brief An OpenGL Widget that display sine-wave water
@@ -55,13 +56,13 @@ protected:
     void wheelEvent(QWheelEvent*) override;
 
 private:
-    /// 為目前的shader設置uniform data
-    void set_uniform_data();
-
-    /// 為目前的shader設置translate vector
-    void set_translate(const glm::vec3& translate);
+    /// 將view matrix更新到UBO內
+    void set_view_matrix_from_arc_ball();
 
 private:
+    // UBO
+    std::unique_ptr<UBO> m_matrices_UBO_p;
+
     // sine wave
     std::unique_ptr<Wave_VAO> m_wave_VAO_p;
     std::unique_ptr<Shader> m_shader_p;
@@ -74,8 +75,6 @@ private:
     /// 每隔一段時間會更新這個widget一次
     QTimer m_timer;
 
-    /// projection matrix，在 set_uniform_data 中傳給shader
-    glm::mat4x4 m_proj_matrix;
     /// 第幾幀，在 set_uniform_data 中傳給shader
     GLuint m_frame;
 
@@ -88,11 +87,6 @@ private:
     float m_last_alpha;
     /// 上次點擊時，beta的值
     float m_last_beta;
-
-    /// 視角（眼睛的位置）有沒有動過
-    bool m_eye_pos_changed;
-    /// perspective projection matrix有沒有動過
-    bool m_perspective_changed;
 };
 
 #endif // WAVEWIDGET_H
