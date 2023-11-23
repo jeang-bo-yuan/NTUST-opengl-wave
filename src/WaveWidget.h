@@ -8,7 +8,6 @@
 #include <glad/gl.h>
 #include <QOpenGLWidget>
 #include <QTimer>
-#include <Shader.h>
 
 #include <memory>
 
@@ -17,6 +16,7 @@
 #include "Box_VAO.h"
 #include "qtTextureCubeMap.h"
 #include "UBO.h"
+#include "Shader.h"
 
 /**
  * @brief An OpenGL Widget that display sine-wave water

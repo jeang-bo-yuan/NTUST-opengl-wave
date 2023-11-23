@@ -1,6 +1,7 @@
 
 #include "qtTextureCubeMap.h"
 #include <QImage>
+#include <stdexcept>
 
 qtTextureCubeMap::qtTextureCubeMap(const QString &pX, const QString &nX,
                                    const QString &pY, const QString &nY,

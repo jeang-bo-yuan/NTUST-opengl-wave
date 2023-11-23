@@ -11,6 +11,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <iostream>
 #include <stddef.h>
 
 void GLAPIENTRY
@@ -28,8 +29,7 @@ MessageCallback( GLenum source,
                     QString::number(severity, 16),
                     message);
 
-    QMessageBox::warning(nullptr, "OpenGL CallBack", text);
-    exit(EXIT_FAILURE);
+    std::cerr << qPrintable(text) << '\n';
 }
 
 // Slots ////////////////////////////////////////////
@@ -77,8 +77,8 @@ void WaveWidget::initializeGL()
     /// glad load OpenGL
     int version = gladLoaderLoadGL();
     if (version == 0) {
-        QMessageBox::critical(this, "OpenGL Load Fail", "Cannot Load OpenGL");
-        exit(EXIT_FAILURE); // QT event loop hasn't start, so call exit() instead of qApp->exit()
+        QMessageBox::critical(nullptr, "OpenGL Load Fail", "Cannot Load OpenGL");
+        exit(EXIT_FAILURE);
     }
     qDebug() << "Load OpenGL " << GLAD_VERSION_MAJOR(version) << '.' << GLAD_VERSION_MINOR(version);
 
@@ -87,18 +87,24 @@ void WaveWidget::initializeGL()
         m_texture_cube_map_p = std::make_unique<qtTextureCubeMap>(":/right.jpg", ":/left.jpg", ":/top.jpg", ":/bottom.jpg", ":/front.jpg", ":/back.jpg");
     }
     catch (std::invalid_argument& ex) {
-        QMessageBox::critical(this, "Load fail", ex.what());
+        QMessageBox::critical(nullptr, "Load fail", ex.what());
         exit(EXIT_FAILURE);
     }
     m_texture_cube_map_p->bind_to(0);
 
     /// @todo set shader
-    m_shader_p = std::make_unique<Shader>("shader/wave.vert", nullptr, nullptr, nullptr, "shader/wave.frag");
-    m_shader_p->Use();
-    glUniform1ui(glGetUniformLocation(m_shader_p->Program, "skybox"), 0);
-    m_skybox_shader_p = std::make_unique<Shader>("shader/skybox.vert", nullptr, nullptr, nullptr, "shader/skybox.frag");
-    m_skybox_shader_p->Use();
-    glUniform1ui(glGetUniformLocation(m_skybox_shader_p->Program, "skybox"), 0);
+    try {
+        m_shader_p = std::make_unique<Shader>("shader/wave.vert", nullptr, nullptr, nullptr, "shader/wave.frag");
+        m_shader_p->Use();
+        glUniform1ui(glGetUniformLocation(m_shader_p->Program, "skybox"), 0);
+        m_skybox_shader_p = std::make_unique<Shader>("shader/skybox.vert", nullptr, nullptr, nullptr, "shader/skybox.frag");
+        m_skybox_shader_p->Use();
+        glUniform1ui(glGetUniformLocation(m_skybox_shader_p->Program, "skybox"), 0);
+    }
+    catch(std::runtime_error& ex) {
+        QMessageBox::critical(nullptr, "Compiling Shader Failed", ex.what());
+        exit(EXIT_FAILURE);
+    }
 
     /// @todo initialize the VAO
     m_wave_VAO_p = std::make_unique<Wave_VAO>(10);

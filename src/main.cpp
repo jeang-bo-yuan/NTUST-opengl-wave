@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QRadioButton>
+#include <QTimer>
 
 int main(int argc, char *argv[])
 {
@@ -38,6 +39,6 @@ int main(int argc, char *argv[])
     QObject::connect(reflect, &QRadioButton::clicked, wave, &WaveWidget::use_reflect);
     QObject::connect(refract, &QRadioButton::clicked, wave, &WaveWidget::use_refract);
 
-    window->show();
+    QTimer::singleShot(0, window, &QWidget::show);
     return a.exec();
 }
