@@ -68,6 +68,7 @@ WaveWidget::WaveWidget(QWidget *parent)
 
 WaveWidget::~WaveWidget()
 {
+    this->makeCurrent();
 }
 
 // OpenGL /////////////////////////////////////////////

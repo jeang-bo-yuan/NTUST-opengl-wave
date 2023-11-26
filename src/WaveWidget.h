@@ -35,6 +35,8 @@ public slots:
 
 public:
     WaveWidget(QWidget *parent = nullptr);
+
+    /// makeCurrent then free up resources
     ~WaveWidget();
 
 protected:
