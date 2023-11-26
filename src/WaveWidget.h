@@ -34,6 +34,12 @@ public slots:
     /// 讓水波折射cube map
     void use_refract();
 
+    /**
+     * @brief 開啟或關閉pixelization
+     * @param on - 為true時開啟
+     */
+    void toggle_pixelization(bool on);
+
 public:
     WaveWidget(QWidget *parent = nullptr);
 
@@ -97,6 +103,9 @@ private:
     float m_last_alpha;
     /// 上次點擊時，beta的值
     float m_last_beta;
+
+    /// 是否要開啟pixelization
+    bool m_pixelization;
 };
 
 #endif // WAVEWIDGET_H

@@ -58,11 +58,17 @@ void WaveWidget::use_refract()
     this->doneCurrent();
 }
 
+void WaveWidget::toggle_pixelization(bool on)
+{
+    this->m_pixelization = on;
+}
+
 // Ctor & Dtor ///////////////////////////////////////
 
 WaveWidget::WaveWidget(QWidget *parent)
     : QOpenGLWidget(parent), m_shader_p(nullptr), m_frame(0),
-    m_Arc_Ball(glm::vec3(0, 0, 0), 3, glm::radians(45.f), glm::radians(20.f))
+    m_Arc_Ball(glm::vec3(0, 0, 0), 3, glm::radians(45.f), glm::radians(20.f)),
+    m_pixelization(false)
 {
 }
 
@@ -185,9 +191,11 @@ void WaveWidget::paintGL()
     GLint old_fbo;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &old_fbo);
 
-    // 綁定自己的frame buffer
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frame_buffer);
-    assert(glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    if (m_pixelization) {
+        // 綁定自己的frame buffer
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frame_buffer);
+        assert(glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_matrices_UBO_p->bind_to(0);
@@ -201,14 +209,16 @@ void WaveWidget::paintGL()
     glUniform1ui(glGetUniformLocation(m_shader_p->Program, "frame"), m_frame);
     m_wave_VAO_p->draw();
 
-    // 換回預設的frame buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, old_fbo);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_color_texture);
-    // 做後處理
-    m_pixelization_shader_p->Use();
-    m_plane_VAO_p->draw();
+    if (m_pixelization) {
+        // 換回預設的frame buffer
+        glBindFramebuffer(GL_FRAMEBUFFER, old_fbo);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_color_texture);
+        // 做後處理
+        m_pixelization_shader_p->Use();
+        m_plane_VAO_p->draw();
+    }
 
     ++m_frame;
 }

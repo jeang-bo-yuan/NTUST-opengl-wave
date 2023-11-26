@@ -7,6 +7,7 @@
 #include <QHBoxLayout>
 #include <QRadioButton>
 #include <QTimer>
+#include <QCheckBox>
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +29,9 @@ int main(int argc, char *argv[])
     buttons->addWidget(refract);
     normal->setChecked(true);
 
+    QCheckBox* pixel = new QCheckBox("Pixelization");
+    pixel->setChecked(false);
+    buttons->addWidget(pixel);
 
     WaveWidget* wave = new WaveWidget;
     vlayout->addWidget(wave);
@@ -38,6 +42,7 @@ int main(int argc, char *argv[])
     QObject::connect(normal, &QRadioButton::clicked, wave, &WaveWidget::use_normal_color);
     QObject::connect(reflect, &QRadioButton::clicked, wave, &WaveWidget::use_reflect);
     QObject::connect(refract, &QRadioButton::clicked, wave, &WaveWidget::use_refract);
+    QObject::connect(pixel, &QCheckBox::toggled, wave, &WaveWidget::toggle_pixelization);
 
     QTimer::singleShot(0, window, &QWidget::show);
     return a.exec();
