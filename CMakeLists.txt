@@ -37,9 +37,11 @@ add_executable(sine-wave
   src/VAO_Interface.h
   src/Wave_VAO.h src/Wave_VAO.cpp
   src/Box_VAO.h src/Box_VAO.cpp
+  src/Plane_VAO.h
 
   src/shader/wave.vert src/shader/wave.frag
   src/shader/skybox.vert src/shader/skybox.frag
+  src/shader/pixel.vert src/shader/pixel.frag
   src/images.qrc
 )
 # Set include directories

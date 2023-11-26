@@ -17,6 +17,7 @@
 #include "qtTextureCubeMap.h"
 #include "UBO.h"
 #include "Shader.h"
+#include "Plane_VAO.h"
 
 /**
  * @brief An OpenGL Widget that display sine-wave water
@@ -73,6 +74,13 @@ private:
     std::unique_ptr<Box_VAO> m_skybox_VAO_p;
     std::unique_ptr<qtTextureCubeMap> m_texture_cube_map_p;
     std::unique_ptr<Shader> m_skybox_shader_p;
+
+    // Framebuffer & pixelization
+    GLuint m_frame_buffer;
+    GLuint m_color_texture;
+    GLuint m_depth_stencil_rbo;
+    std::unique_ptr<Plane_VAO> m_plane_VAO_p;
+    std::unique_ptr<Shader> m_pixelization_shader_p;
 
     /// 每隔一段時間會更新這個widget一次
     QTimer m_timer;
