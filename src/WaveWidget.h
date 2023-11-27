@@ -69,6 +69,9 @@ private:
     /// 將view matrix更新到UBO內
     void set_view_matrix_from_arc_ball();
 
+    /// 點擊某位置後，更新height map
+    void add_drop(float winX, float winY);
+
 private:
     // UBO
     std::unique_ptr<UBO> m_matrices_UBO_p;

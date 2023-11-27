@@ -244,41 +244,27 @@ void WaveWidget::mousePressEvent(QMouseEvent *e)
     m_last_beta = m_Arc_Ball.beta();
 
     this->makeCurrent();
-    // Qt的y是從上往下算，OpenGL是從下往上算
-    glm::vec3 winPos(e->x(), this->height() - e->y(), 0);
-    glReadPixels(winPos.x, winPos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winPos.z);
-
-    glBindBuffer(GL_UNIFORM_BUFFER, m_matrices_UBO_p->name());
-    GLfloat* buffer = reinterpret_cast<GLfloat*>(glMapBuffer(GL_UNIFORM_BUFFER, GL_READ_ONLY));
-    glm::mat4 view_matrix = glm::make_mat4(buffer);
-    glm::mat4 proj_matrix = glm::make_mat4(buffer + 16);
-    glUnmapBuffer(GL_UNIFORM_BUFFER);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    glm::vec3 pos = glm::unProject(winPos, view_matrix, proj_matrix, glm::vec4(0, 0, width(), height()));
-    qDebug() << glm::to_string(pos).c_str();
-
-    if (fabs(pos.y) <= 1.f) {
-        glm::vec2 drop_pos((pos.x + WAVE_SIZE) / (2 * WAVE_SIZE), (pos.z + WAVE_SIZE) / (2 * WAVE_SIZE));
-        qDebug() << "Add Drop ======================================" << glm::to_string(drop_pos).c_str();
-        m_DHM_p->add_drop(
-            drop_pos.x, drop_pos.y
-        );
-    }
-
+    this->add_drop(e->x(), e->y());
     this->doneCurrent();
 }
 
 void WaveWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    int delta_x = e->x() - m_last_clicked.x();
-    int delta_y = e->y() - m_last_clicked.y();
-
-    m_Arc_Ball.set_alpha(m_last_alpha + glm::radians<float>(delta_x));
-    m_Arc_Ball.set_beta(m_last_beta + glm::radians<float>(delta_y));
-
     this->makeCurrent();
-    this->set_view_matrix_from_arc_ball();
+
+    // 若按著左鍵，則計算按的位置並更新height map
+    if (e->buttons() & Qt::LeftButton) {
+        add_drop(e->x(), e->y());
+    }
+    else {
+        int delta_x = e->x() - m_last_clicked.x();
+        int delta_y = e->y() - m_last_clicked.y();
+
+        m_Arc_Ball.set_alpha(m_last_alpha + glm::radians<float>(delta_x));
+        m_Arc_Ball.set_beta(m_last_beta + glm::radians<float>(delta_y));
+        this->set_view_matrix_from_arc_ball();
+    }
+
     this->doneCurrent();
 }
 
@@ -315,7 +301,32 @@ void WaveWidget::set_view_matrix_from_arc_ball()
         glGetUniformLocation(m_shader_p->Program, "eye_position"),
         1,
         glm::value_ptr(m_Arc_Ball.calc_pos())
-    );
+        );
+}
+
+void WaveWidget::add_drop(float winX, float winY)
+{
+    // Qt的y是從上往下算，OpenGL是從下往上算
+    glm::vec3 winPos(winX, this->height() - winY, 0);
+    glReadPixels(winPos.x, winPos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winPos.z);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, m_matrices_UBO_p->name());
+    GLfloat* buffer = reinterpret_cast<GLfloat*>(glMapBuffer(GL_UNIFORM_BUFFER, GL_READ_ONLY));
+    glm::mat4 view_matrix = glm::make_mat4(buffer);
+    glm::mat4 proj_matrix = glm::make_mat4(buffer + 16);
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glm::vec3 pos = glm::unProject(winPos, view_matrix, proj_matrix, glm::vec4(0, 0, width(), height()));
+    qDebug() << glm::to_string(pos).c_str();
+
+    if (fabs(pos.y) <= 1.f) {
+        glm::vec2 drop_pos((pos.x + WAVE_SIZE) / (2 * WAVE_SIZE), (pos.z + WAVE_SIZE) / (2 * WAVE_SIZE));
+        qDebug() << "Add Drop ======================================" << glm::to_string(drop_pos).c_str();
+        m_DHM_p->add_drop(
+            drop_pos.x, drop_pos.y
+            );
+    }
 }
 
 
