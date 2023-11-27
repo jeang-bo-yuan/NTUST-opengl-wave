@@ -8,10 +8,10 @@
 
 class DynamicHeightMap
 {
-public:
+private:
     GLuint m_fbo;
-    GLuint m_color_texture;
-    GLuint m_depth_stencil_rbo;
+    GLuint m_color_texture[2];
+    GLuint m_current_frame; //!< 在0,1間來回，目前的幀使用了m_color_texture[m_current_frame]做color buffer
     Plane_VAO m_plane_VAO;
     Shader m_shader_drop;
     Shader m_shader_update;
@@ -22,12 +22,12 @@ public:
     ~DynamicHeightMap();
 
     /**
-     * @brief 更新height map
+     * @brief 依照current frame的height map更新出下一frame的height map
      */
     void update();
 
     /**
-     * @brief
+     * @brief 在current frame新增drop
      * @param x
      * @param y
      * @pre 0 <= x,y <= 1
