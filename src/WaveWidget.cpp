@@ -80,7 +80,7 @@ WaveWidget::~WaveWidget()
     this->makeCurrent();
     glDeleteFramebuffers(1, &m_frame_buffer);
     glDeleteTextures(1, &m_color_texture);
-    glDeleteRenderbuffers(1, &m_depth_stencil_rbo);
+    glDeleteRenderbuffers(1, &m_depth_texture);
 }
 
 // OpenGL /////////////////////////////////////////////
@@ -122,6 +122,7 @@ void WaveWidget::initializeGL()
         m_pixelization_shader_p = std::make_unique<Shader>("shader/pixel.vert", nullptr, nullptr, nullptr, "shader/pixel.frag");
         m_pixelization_shader_p->Use();
         glUniform1i(glad_glGetUniformLocation(m_pixelization_shader_p->Program, "color_buffer"), 0);
+        glUniform1i(glGetUniformLocation(m_pixelization_shader_p->Program, "depth_buffer"), 1);
     }
     catch(std::runtime_error& ex) {
         QMessageBox::critical(nullptr, "Compiling Shader Failed", ex.what());
@@ -141,8 +142,8 @@ void WaveWidget::initializeGL()
     glGenFramebuffers(1, &m_frame_buffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer);
     {
+        // color buffer
         glGenTextures(1, &m_color_texture);
-        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_color_texture);
         glTexImage2D(GL_TEXTURE_2D, /* level */0, /* internal */GL_RGB, width(), height(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -151,11 +152,15 @@ void WaveWidget::initializeGL()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_color_texture, 0);
 
-        glGenRenderbuffers(1, &m_depth_stencil_rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_depth_stencil_rbo);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width(), height());
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depth_stencil_rbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+        // depth buffer
+        glGenTextures(1, &m_depth_texture);
+        glBindTexture(GL_TEXTURE_2D, m_depth_texture);
+        glTexImage2D(GL_TEXTURE_2D, /* level */0, /* internal */GL_DEPTH_COMPONENT, width(), height(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth_texture, 0);
     }
     assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -181,13 +186,11 @@ void WaveWidget::resizeGL(int w, int h)
     m_matrices_UBO_p->BufferSubData(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
 
     // 更新FBO關聯的color buffer和depth buffer
-    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_color_texture);
     glTexImage2D(GL_TEXTURE_2D, /* level */0, /* internal */GL_RGB, width(), height(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
-    glBindRenderbuffer(GL_RENDERBUFFER, m_depth_stencil_rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width(), height());
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, m_depth_texture);
+    glTexImage2D(GL_TEXTURE_2D, /* level */0, /* internal */GL_DEPTH_COMPONENT, width(), height(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
     this->doneCurrent();
 }
 
@@ -226,6 +229,8 @@ void WaveWidget::paintGL()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_color_texture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_depth_texture);
         // 做後處理
         m_pixelization_shader_p->Use();
         m_plane_VAO_p->draw();
@@ -243,9 +248,11 @@ void WaveWidget::mousePressEvent(QMouseEvent *e)
     m_last_alpha = m_Arc_Ball.alpha();
     m_last_beta = m_Arc_Ball.beta();
 
-    this->makeCurrent();
-    this->add_drop(e->x(), e->y());
-    this->doneCurrent();
+    if (e->button() == Qt::LeftButton) {
+        this->makeCurrent();
+        this->add_drop(e->x(), e->y());
+        this->doneCurrent();
+    }
 }
 
 void WaveWidget::mouseMoveEvent(QMouseEvent *e)

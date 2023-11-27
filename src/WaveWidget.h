@@ -89,7 +89,7 @@ private:
     // Framebuffer & pixelization
     GLuint m_frame_buffer;
     GLuint m_color_texture;
-    GLuint m_depth_stencil_rbo;
+    GLuint m_depth_texture;
     std::unique_ptr<Plane_VAO> m_plane_VAO_p;
     std::unique_ptr<Shader> m_pixelization_shader_p;
 
