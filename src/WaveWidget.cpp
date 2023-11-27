@@ -10,9 +10,12 @@
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <iostream>
 #include <stddef.h>
+
+constexpr float WAVE_SIZE = 10;
 
 void GLAPIENTRY
 MessageCallback( GLenum source,
@@ -106,15 +109,19 @@ void WaveWidget::initializeGL()
     try {
         m_shader_p = std::make_unique<Shader>("shader/wave.vert", nullptr, nullptr, nullptr, "shader/wave.frag");
         m_shader_p->Use();
-        glUniform1ui(glGetUniformLocation(m_shader_p->Program, "skybox"), 0);
+        glUniform1i(glGetUniformLocation(m_shader_p->Program, "skybox"), 0);
+        glUniform1i(glGetUniformLocation(m_shader_p->Program, "height_map"), 0);
+        glUniform1f(glGetUniformLocation(m_shader_p->Program, "WAVE_SIZE"), WAVE_SIZE);
+
+        m_DHM_p = std::make_unique<DynamicHeightMap>();
 
         m_skybox_shader_p = std::make_unique<Shader>("shader/skybox.vert", nullptr, nullptr, nullptr, "shader/skybox.frag");
         m_skybox_shader_p->Use();
-        glUniform1ui(glGetUniformLocation(m_skybox_shader_p->Program, "skybox"), 0);
+        glUniform1i(glGetUniformLocation(m_skybox_shader_p->Program, "skybox"), 0);
 
         m_pixelization_shader_p = std::make_unique<Shader>("shader/pixel.vert", nullptr, nullptr, nullptr, "shader/pixel.frag");
         m_pixelization_shader_p->Use();
-        glUniform1ui(glad_glGetUniformLocation(m_pixelization_shader_p->Program, "color_buffer"), 0);
+        glUniform1i(glad_glGetUniformLocation(m_pixelization_shader_p->Program, "color_buffer"), 0);
     }
     catch(std::runtime_error& ex) {
         QMessageBox::critical(nullptr, "Compiling Shader Failed", ex.what());
@@ -122,7 +129,7 @@ void WaveWidget::initializeGL()
     }
 
     /// @todo initialize the VAO
-    m_wave_VAO_p = std::make_unique<Wave_VAO>(10);
+    m_wave_VAO_p = std::make_unique<Wave_VAO>(WAVE_SIZE);
     m_skybox_VAO_p = std::make_unique<Box_VAO>(50);
     m_plane_VAO_p = std::make_unique<Plane_VAO>();
 
@@ -205,9 +212,13 @@ void WaveWidget::paintGL()
     m_skybox_VAO_p->draw();
     glDepthMask(GL_TRUE);
 
+    m_DHM_p->update();
+
+    m_DHM_p->bind(0);
     m_shader_p->Use();
     glUniform1ui(glGetUniformLocation(m_shader_p->Program, "frame"), m_frame);
     m_wave_VAO_p->draw();
+    m_DHM_p->unbind(0);
 
     if (m_pixelization) {
         // 換回預設的frame buffer
@@ -231,6 +242,31 @@ void WaveWidget::mousePressEvent(QMouseEvent *e)
     m_last_clicked = e->pos();
     m_last_alpha = m_Arc_Ball.alpha();
     m_last_beta = m_Arc_Ball.beta();
+
+    this->makeCurrent();
+    // Qt的y是從上往下算，OpenGL是從下往上算
+    glm::vec3 winPos(e->x(), this->height() - e->y(), 0);
+    glReadPixels(winPos.x, winPos.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winPos.z);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, m_matrices_UBO_p->name());
+    GLfloat* buffer = reinterpret_cast<GLfloat*>(glMapBuffer(GL_UNIFORM_BUFFER, GL_READ_ONLY));
+    glm::mat4 view_matrix = glm::make_mat4(buffer);
+    glm::mat4 proj_matrix = glm::make_mat4(buffer + 16);
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glm::vec3 pos = glm::unProject(winPos, view_matrix, proj_matrix, glm::vec4(0, 0, width(), height()));
+    qDebug() << glm::to_string(pos).c_str();
+
+    if (fabs(pos.y) <= 1.f) {
+        glm::vec2 drop_pos((pos.x + WAVE_SIZE) / (2 * WAVE_SIZE), (pos.z + WAVE_SIZE) / (2 * WAVE_SIZE));
+        qDebug() << "Add Drop ======================================" << glm::to_string(drop_pos).c_str();
+        m_DHM_p->add_drop(
+            drop_pos.x, drop_pos.y
+        );
+    }
+
+    this->doneCurrent();
 }
 
 void WaveWidget::mouseMoveEvent(QMouseEvent *e)

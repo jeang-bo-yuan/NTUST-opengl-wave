@@ -59,6 +59,12 @@ public:
      * @param binding - binding point的index
      */
     void bind_to(GLuint binding);
+
+    /**
+     * @brief 取得UBO的名字
+     * @return 由 glGenBuffers 產生的名字
+     */
+    GLuint name() const { return m_UBO_id; }
 };
 
 #endif // UBO_H

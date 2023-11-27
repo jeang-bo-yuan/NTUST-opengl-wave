@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "ArcBall.h"
+#include "DynamicHeightMap.h"
 #include "Wave_VAO.h"
 #include "Box_VAO.h"
 #include "qtTextureCubeMap.h"
@@ -75,6 +76,7 @@ private:
     // sine wave
     std::unique_ptr<Wave_VAO> m_wave_VAO_p;
     std::unique_ptr<Shader> m_shader_p;
+    std::unique_ptr<DynamicHeightMap> m_DHM_p;
 
     // skybox
     std::unique_ptr<Box_VAO> m_skybox_VAO_p;

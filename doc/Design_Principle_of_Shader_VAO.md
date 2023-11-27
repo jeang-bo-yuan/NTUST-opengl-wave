@@ -9,6 +9,7 @@
 |Index|Type|Content|
 |-----|----|-------|
 |0    |vec3|頂點的座標|
+|1    |vec2|Texture Coordinate|
 
 - Vertex Shader的Uniform Block必須遵守下列規範
 
