@@ -131,7 +131,7 @@ void WaveWidget::initializeGL()
 
     /// @todo initialize the VAO
     m_wave_VAO_p = std::make_unique<Wave_VAO>(WAVE_SIZE);
-    m_skybox_VAO_p = std::make_unique<Box_VAO>(50);
+    m_skybox_VAO_p = std::make_unique<Box_VAO>(1);
     m_plane_VAO_p = std::make_unique<Plane_VAO>();
 
     /// @todo initialize the UBO
