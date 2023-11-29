@@ -12,7 +12,6 @@ uniform float u_strength = 0.01;
 void main() {
   vec4 info = texture2D(u_water, TexCoord);
 
-  // 新增drop後，每一個texel的r的平均還要是0.5
   float drop = max(0, 1 - length(u_center - TexCoord) / u_radius);
   if (drop > 0) {
     float delta_height = (drop - 0.5) * u_strength;
