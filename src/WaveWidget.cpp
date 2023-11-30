@@ -131,9 +131,10 @@ void WaveWidget::initializeGL()
         m_current_height_map = 0;
         QString path_format(":/img/%1.png");
         QString id("000");
-        for (int i = 0; i < 200; ++i) {
+        for (int i = 0; i < 200; ) {
             qDebug() << id;
             m_height_maps.emplace_back(path_format.arg(id));
+            emit height_map_load(++i);
 
             // 讓id加1
             for (int j = 2; j >= 0; --j) {

@@ -29,6 +29,10 @@ class WaveWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
+signals:
+    /// 當第id個height map載入完成時，emit之（1 <= id <= 200）
+    void height_map_load(int id);
+
 public slots:
     /// 使用原本的方法著色
     void use_normal_color();

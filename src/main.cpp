@@ -9,6 +9,8 @@
 #include <QTimer>
 #include <QCheckBox>
 #include <QButtonGroup>
+#include <QProgressBar>
+#include <QLabel>
 
 int main(int argc, char *argv[])
 {
@@ -69,6 +71,24 @@ int main(int argc, char *argv[])
     QObject::connect(ripple, &QRadioButton::clicked, wave, &WaveWidget::use_ripple);
     QObject::connect(height_map, &QRadioButton::clicked, wave, &WaveWidget::use_height_map);
 
-    QTimer::singleShot(0, window, &QWidget::show);
+    /* Progress Bar */ {
+        QWidget* progress_widget = new QWidget;
+        QVBoxLayout* vlayout = new QVBoxLayout(progress_widget);
+        vlayout->addWidget(new QLabel(u8"載入height map中......"));
+        QProgressBar* progress = new QProgressBar;
+        vlayout->addWidget(progress);
+
+        progress->setRange(0, 200);
+        progress->setValue(0);
+
+        QObject::connect(wave, &WaveWidget::height_map_load, progress_widget, [progress, progress_widget](int id){
+            progress->setValue(id);
+            if (id == 200) QTimer::singleShot(20, progress_widget, &QWidget::close);
+        });
+
+        QTimer::singleShot(10, progress_widget, &QWidget::show);
+    }
+
+    QTimer::singleShot(10, window, &QWidget::show);
     return a.exec();
 }
