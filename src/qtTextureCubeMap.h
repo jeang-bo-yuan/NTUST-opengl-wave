@@ -27,6 +27,9 @@ public:
      */
     qtTextureCubeMap(const QString& pX, const QString& nX, const QString& pY, const QString& nY, const QString& pZ, const QString& nZ);
 
+    qtTextureCubeMap(const qtTextureCubeMap&) = delete;
+    qtTextureCubeMap(qtTextureCubeMap&&) = delete;
+
     /// 解構子，呼叫 glDeleteTextures
     ~qtTextureCubeMap();
 

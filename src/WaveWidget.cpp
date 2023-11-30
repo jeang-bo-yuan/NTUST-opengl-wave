@@ -84,6 +84,15 @@ void WaveWidget::use_ripple()
     this->doneCurrent();
 }
 
+void WaveWidget::use_height_map()
+{
+    m_sine_ripple_or_heightMap = 2;
+    this->makeCurrent();
+    m_shader_p->Use();
+    glUniform1i(glGetUniformLocation(m_shader_p->Program, "use_height_map"), GL_TRUE);
+    this->doneCurrent();
+}
+
 // Ctor & Dtor ///////////////////////////////////////
 
 WaveWidget::WaveWidget(QWidget *parent)
@@ -115,13 +124,34 @@ void WaveWidget::initializeGL()
 
     /// @todo load texture
     try {
+        // skybox
         m_texture_cube_map_p = std::make_unique<qtTextureCubeMap>(":/right.jpg", ":/left.jpg", ":/top.jpg", ":/bottom.jpg", ":/front.jpg", ":/back.jpg");
+
+        // load height maps
+        m_current_height_map = 0;
+        QString path_format(":/img/%1.png");
+        QString id("000");
+        for (int i = 0; i < 200; ++i) {
+            qDebug() << id;
+            m_height_maps.emplace_back(path_format.arg(id));
+
+            // 讓id加1
+            for (int j = 2; j >= 0; --j) {
+                // 9加1 為 0進位1
+                if (id[j] == '9') {
+                    id[j] = '0';
+                }
+                else {
+                    id[j] = char(id[j].digitValue() + 1 + '0');
+                    break;
+                }
+            }
+        }
     }
     catch (std::invalid_argument& ex) {
         QMessageBox::critical(nullptr, "Load fail", ex.what());
         exit(EXIT_FAILURE);
     }
-    m_texture_cube_map_p->bind_to(0);
 
     /// @todo set shader
     try {
@@ -232,6 +262,7 @@ void WaveWidget::paintGL()
     m_matrices_UBO_p->bind_to(0);
 
     // 繪製skybox
+    m_texture_cube_map_p->bind_to(0);
     m_skybox_shader_p->Use();
     glDepthMask(GL_FALSE);
     m_skybox_VAO_p->draw();
@@ -247,11 +278,16 @@ void WaveWidget::paintGL()
         m_DHM_p->update();
         m_DHM_p->bind(0);
     }
+    else {
+        qDebug() << "Height Map:" << m_current_height_map;
+        // 綁定預先算好的height map
+        m_height_maps.at(m_current_height_map).bind_to(0);
+        m_current_height_map = (m_current_height_map + 1) % 200;
+    }
 
     // 繪製wave
     m_shader_p->Use();
     m_wave_VAO_p->draw();
-    m_DHM_p->unbind(0);
 
     if (m_pixelization) {
         // 換回預設的frame buffer

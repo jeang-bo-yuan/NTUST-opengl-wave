@@ -10,6 +10,7 @@
 #include <QTimer>
 
 #include <memory>
+#include <vector>
 
 #include "ArcBall.h"
 #include "DynamicHeightMap.h"
@@ -19,6 +20,7 @@
 #include "UBO.h"
 #include "Shader.h"
 #include "Plane_VAO.h"
+#include "qtTextureImage2D.h"
 
 /**
  * @brief An OpenGL Widget that display sine-wave water
@@ -49,6 +51,10 @@ public slots:
      * @brief 模擬ripple
      */
     void use_ripple();
+    /**
+     * @brief 使用預先算好的height map
+     */
+    void use_height_map();
 
 public:
     WaveWidget(QWidget *parent = nullptr);
@@ -90,10 +96,17 @@ private:
     std::unique_ptr<Shader> m_shader_p;
     std::unique_ptr<DynamicHeightMap> m_DHM_p;
 
+    // pre-calculated wave height map
+    std::vector<qtTextureImage2D> m_height_maps;
+    int m_current_height_map;
+
     // skybox
     std::unique_ptr<Box_VAO> m_skybox_VAO_p;
     std::unique_ptr<qtTextureCubeMap> m_texture_cube_map_p;
     std::unique_ptr<Shader> m_skybox_shader_p;
+
+    /// 第幾幀，在 set_uniform_data 中傳給shader
+    GLuint m_frame;
 
     // Framebuffer & pixelization
     GLuint m_frame_buffer;
@@ -104,9 +117,6 @@ private:
 
     /// 每隔一段時間會更新這個widget一次
     QTimer m_timer;
-
-    /// 第幾幀，在 set_uniform_data 中傳給shader
-    GLuint m_frame;
 
     /// 記錄視角的球面座標
     ArcBall m_Arc_Ball;

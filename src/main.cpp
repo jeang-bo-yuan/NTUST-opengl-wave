@@ -8,6 +8,7 @@
 #include <QRadioButton>
 #include <QTimer>
 #include <QCheckBox>
+#include <QButtonGroup>
 
 int main(int argc, char *argv[])
 {
@@ -22,9 +23,13 @@ int main(int argc, char *argv[])
     buttons->setMargin(20);
     buttons->setSpacing(50);
     vlayout->addLayout(buttons);
+    QButtonGroup* group_color = new QButtonGroup(window);
     QRadioButton* normal = new QRadioButton("Use Normal Color");
     QRadioButton* reflect = new QRadioButton("Reflect");
     QRadioButton* refract = new QRadioButton("Refract");
+    group_color->addButton(normal);
+    group_color->addButton(reflect);
+    group_color->addButton(refract);
     buttons->addWidget(normal);
     buttons->addWidget(reflect);
     buttons->addWidget(refract);
@@ -43,8 +48,10 @@ int main(int argc, char *argv[])
     vlayout->addLayout(buttons2);
     QRadioButton* sine_wave = new QRadioButton("Sine Wave");
     QRadioButton* ripple = new QRadioButton("Ripple");
+    QRadioButton* height_map = new QRadioButton("Height Map");
     buttons2->addWidget(sine_wave);
     buttons2->addWidget(ripple);
+    buttons2->addWidget(height_map);
     sine_wave->setChecked(true);
 
     // 顯示wave
@@ -60,6 +67,7 @@ int main(int argc, char *argv[])
     QObject::connect(pixel, &QCheckBox::toggled, wave, &WaveWidget::toggle_pixelization);
     QObject::connect(sine_wave, &QRadioButton::clicked, wave, &WaveWidget::use_sine_wave);
     QObject::connect(ripple, &QRadioButton::clicked, wave, &WaveWidget::use_ripple);
+    QObject::connect(height_map, &QRadioButton::clicked, wave, &WaveWidget::use_height_map);
 
     QTimer::singleShot(0, window, &QWidget::show);
     return a.exec();
