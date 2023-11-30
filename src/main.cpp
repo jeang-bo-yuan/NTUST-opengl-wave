@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     QVBoxLayout* vlayout = new QVBoxLayout(window);
     vlayout->setMargin(0);
 
+    // 使用的顏色
     QHBoxLayout* buttons = new QHBoxLayout;
     buttons->setAlignment(Qt::AlignCenter);
     buttons->setMargin(20);
@@ -29,10 +30,24 @@ int main(int argc, char *argv[])
     buttons->addWidget(refract);
     normal->setChecked(true);
 
+    // 像素化
     QCheckBox* pixel = new QCheckBox("Pixelization");
     pixel->setChecked(false);
     buttons->addWidget(pixel);
 
+    // 選擇波形
+    QHBoxLayout* buttons2 = new QHBoxLayout;
+    buttons2->setAlignment(Qt::AlignCenter);
+    buttons2->setMargin(10);
+    buttons2->setSpacing(50);
+    vlayout->addLayout(buttons2);
+    QRadioButton* sine_wave = new QRadioButton("Sine Wave");
+    QRadioButton* ripple = new QRadioButton("Ripple");
+    buttons2->addWidget(sine_wave);
+    buttons2->addWidget(ripple);
+    sine_wave->setChecked(true);
+
+    // 顯示wave
     WaveWidget* wave = new WaveWidget;
     vlayout->addWidget(wave);
     vlayout->setStretch(1, 1);
@@ -43,6 +58,8 @@ int main(int argc, char *argv[])
     QObject::connect(reflect, &QRadioButton::clicked, wave, &WaveWidget::use_reflect);
     QObject::connect(refract, &QRadioButton::clicked, wave, &WaveWidget::use_refract);
     QObject::connect(pixel, &QCheckBox::toggled, wave, &WaveWidget::toggle_pixelization);
+    QObject::connect(sine_wave, &QRadioButton::clicked, wave, &WaveWidget::use_sine_wave);
+    QObject::connect(ripple, &QRadioButton::clicked, wave, &WaveWidget::use_ripple);
 
     QTimer::singleShot(0, window, &QWidget::show);
     return a.exec();

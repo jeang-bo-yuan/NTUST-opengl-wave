@@ -66,6 +66,24 @@ void WaveWidget::toggle_pixelization(bool on)
     this->m_pixelization = on;
 }
 
+void WaveWidget::use_sine_wave()
+{
+    m_sine_ripple_or_heightMap = 0;
+    this->makeCurrent();
+    m_shader_p->Use();
+    glUniform1i(glGetUniformLocation(m_shader_p->Program, "use_height_map"), GL_FALSE);
+    this->doneCurrent();
+}
+
+void WaveWidget::use_ripple()
+{
+    m_sine_ripple_or_heightMap = 1;
+    this->makeCurrent();
+    m_shader_p->Use();
+    glUniform1i(glGetUniformLocation(m_shader_p->Program, "use_height_map"), GL_TRUE);
+    this->doneCurrent();
+}
+
 // Ctor & Dtor ///////////////////////////////////////
 
 WaveWidget::WaveWidget(QWidget *parent)
@@ -176,6 +194,8 @@ void WaveWidget::initializeGL()
     m_timer.setInterval(20);
     connect(&m_timer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
     m_timer.start();
+
+    this->use_sine_wave();
 }
 
 void WaveWidget::resizeGL(int w, int h)
@@ -208,18 +228,28 @@ void WaveWidget::paintGL()
     }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // 綁定矩陣
     m_matrices_UBO_p->bind_to(0);
 
+    // 繪製skybox
     m_skybox_shader_p->Use();
     glDepthMask(GL_FALSE);
     m_skybox_VAO_p->draw();
     glDepthMask(GL_TRUE);
 
-    m_DHM_p->update();
+    if (m_sine_ripple_or_heightMap == 0) {
+        // update frame number
+        m_shader_p->Use();
+        glUniform1ui(glGetUniformLocation(m_shader_p->Program, "frame"), m_frame);
+    }
+    else if (m_sine_ripple_or_heightMap == 1) {
+        // 更新並綁定dynamic height map
+        m_DHM_p->update();
+        m_DHM_p->bind(0);
+    }
 
-    m_DHM_p->bind(0);
+    // 繪製wave
     m_shader_p->Use();
-    glUniform1ui(glGetUniformLocation(m_shader_p->Program, "frame"), m_frame);
     m_wave_VAO_p->draw();
     m_DHM_p->unbind(0);
 
@@ -248,7 +278,7 @@ void WaveWidget::mousePressEvent(QMouseEvent *e)
     m_last_alpha = m_Arc_Ball.alpha();
     m_last_beta = m_Arc_Ball.beta();
 
-    if (e->button() == Qt::LeftButton) {
+    if (e->button() == Qt::LeftButton && m_sine_ripple_or_heightMap == 1) {
         this->makeCurrent();
         this->add_drop(e->x(), e->y());
         this->doneCurrent();
@@ -261,7 +291,8 @@ void WaveWidget::mouseMoveEvent(QMouseEvent *e)
 
     // 若按著左鍵，則計算按的位置並更新height map
     if (e->buttons() & Qt::LeftButton) {
-        add_drop(e->x(), e->y());
+        if (m_sine_ripple_or_heightMap == 1)
+            add_drop(e->x(), e->y());
     }
     else {
         int delta_x = e->x() - m_last_clicked.x();

@@ -41,6 +41,15 @@ public slots:
      */
     void toggle_pixelization(bool on);
 
+    /**
+     * @brief 使用sine wave
+     */
+    void use_sine_wave();
+    /**
+     * @brief 模擬ripple
+     */
+    void use_ripple();
+
 public:
     WaveWidget(QWidget *parent = nullptr);
 
@@ -108,6 +117,9 @@ private:
     float m_last_alpha;
     /// 上次點擊時，beta的值
     float m_last_beta;
+
+    /// 0 -> sine wave, 1 -> ripple, 2 -> heightMap from image
+    int m_sine_ripple_or_heightMap;
 
     /// 是否要開啟pixelization
     bool m_pixelization;
