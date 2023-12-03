@@ -66,3 +66,9 @@ void Box_VAO::draw()
     glBindVertexArray(m_VAO_id);
     glDrawArrays(GL_QUADS, /*first*/0, /*count*/24);
 }
+
+void Box_VAO::draw_without_top()
+{
+    glBindVertexArray(m_VAO_id);
+    glDrawArrays(GL_QUADS, /*first*/0, /*count*/20);
+}

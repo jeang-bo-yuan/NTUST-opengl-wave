@@ -15,7 +15,7 @@
 #include <iostream>
 #include <stddef.h>
 
-constexpr float WAVE_SIZE = 10;
+constexpr float WAVE_SIZE = 5;
 
 void GLAPIENTRY
 MessageCallback( GLenum source,
@@ -172,6 +172,10 @@ void WaveWidget::initializeGL()
         m_pixelization_shader_p->Use();
         glUniform1i(glad_glGetUniformLocation(m_pixelization_shader_p->Program, "color_buffer"), 0);
         glUniform1i(glGetUniformLocation(m_pixelization_shader_p->Program, "depth_buffer"), 1);
+
+        m_brick_shader_p = std::make_unique<Shader>("shader/brick.vert", nullptr, nullptr, nullptr, "shader/brick.frag");
+        m_brick_shader_p->Use();
+        glUniform1f(glGetUniformLocation(m_brick_shader_p->Program, "WAVE_SIZE"), WAVE_SIZE);
     }
     catch(std::runtime_error& ex) {
         QMessageBox::critical(nullptr, "Compiling Shader Failed", ex.what());
@@ -180,7 +184,7 @@ void WaveWidget::initializeGL()
 
     /// @todo initialize the VAO
     m_wave_VAO_p = std::make_unique<Wave_VAO>(WAVE_SIZE);
-    m_skybox_VAO_p = std::make_unique<Box_VAO>(1);
+    m_skybox_VAO_p = std::make_unique<Box_VAO>(WAVE_SIZE);
     m_plane_VAO_p = std::make_unique<Plane_VAO>();
 
     /// @todo initialize the UBO
@@ -289,6 +293,10 @@ void WaveWidget::paintGL()
     // 繪製wave
     m_shader_p->Use();
     m_wave_VAO_p->draw();
+
+    // 水槽
+    m_brick_shader_p->Use();
+    m_skybox_VAO_p->draw_without_top();
 
     if (m_pixelization) {
         // 換回預設的frame buffer

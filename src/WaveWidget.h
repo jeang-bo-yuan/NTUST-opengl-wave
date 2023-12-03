@@ -104,6 +104,9 @@ private:
     std::vector<qtTextureImage2D> m_height_maps;
     int m_current_height_map;
 
+    // 水槽
+    std::unique_ptr<Shader> m_brick_shader_p;
+
     // skybox
     std::unique_ptr<Box_VAO> m_skybox_VAO_p;
     std::unique_ptr<qtTextureCubeMap> m_texture_cube_map_p;

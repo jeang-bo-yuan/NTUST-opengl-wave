@@ -25,6 +25,7 @@ FetchContent_Declare(GLM
 FetchContent_MakeAvailable(GLM)
 
 # Executables
+file(GLOB_RECURSE SHADER_SOURCE RELATIVE "${CMAKE_SOURCE_DIR}" CONFIGURE_DEPENDS "src/shader/*.vert" "src/shader/*.frag")
 add_executable(sine-wave
   src/ArcBall.h src/ArcBall.cpp
   src/DynamicHeightMap.h src/DynamicHeightMap.cpp
@@ -41,10 +42,7 @@ add_executable(sine-wave
   src/Box_VAO.h src/Box_VAO.cpp
   src/Plane_VAO.h
 
-  src/shader/wave.vert src/shader/wave.frag
-  src/shader/skybox.vert src/shader/skybox.frag
-  src/shader/pixel.vert src/shader/pixel.frag
-  src/shader/DHM/simple.vert src/shader/DHM/drop.frag src/shader/DHM/update.frag
+  ${SHADER_SOURCE}
   src/images.qrc
 )
 # Set include directories

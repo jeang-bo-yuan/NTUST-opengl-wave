@@ -30,6 +30,9 @@ public:
     /// 畫出來，方塊的範圍：(-size, -size, -size) ~ (size, size, size)
     /// @details 畫出方塊的每一面
     void draw() override;
+
+    /// 繪製一個沒有「蓋子」的方塊
+    void draw_without_top();
 };
 
 #endif // BOX_VAO_H

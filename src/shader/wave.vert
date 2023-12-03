@@ -38,7 +38,7 @@ void main() {
     // y  = 0.05 * sin(2 * pi * x)
     // y' = 0.05 * 2 * pi * cos(2 * pi * x)
     vs_world_pos = vec3(pos.x, 0.05 * sin(2 * 3.14 * (pos.x + offset)), pos.z);
-    vs_world_pos -= 0.5;
+    vs_world_pos.y -= 0.5;
     gl_Position = Matrices.proj * Matrices.view * vec4(vs_world_pos, 1);
 
     float slope = 0.05 * 2 * 3.14 * cos(2 * 3.14 * (pos.x + offset));
