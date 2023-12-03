@@ -3,53 +3,66 @@
 
 Box_VAO::Box_VAO(GLfloat size)
 {
-    GLfloat positions[] = {
-        -size, -size, -size,
-        -size, -size, +size,
-        -size, +size, -size,
-        -size, +size, +size,
-        +size, -size, -size,
-        +size, -size, +size,
-        +size, +size, -size,
-        +size, +size, +size
+    GLfloat vbo_data[] = {
+        // position                // normal
+        // negative x
+        -size, -size, -size,        -1, 0, 0,
+        -size, -size, +size,        -1, 0, 0,
+        -size, +size, +size,        -1, 0, 0,
+        -size, +size, -size,        -1, 0, 0,
+        // positive x
+        +size, -size, -size,        1, 0, 0,
+        +size, -size, +size,        1, 0, 0,
+        +size, +size, +size,        1, 0, 0,
+        +size, +size, -size,        1, 0, 0,
+        // negative z
+        -size, +size, -size,        0, 0, -1,
+        +size, +size, -size,        0, 0, -1,
+        +size, -size, -size,        0, 0, -1,
+        -size, -size, -size,        0, 0, -1,
+        // positive z
+        -size, +size, +size,        0, 0, 1,
+        +size, +size, +size,        0, 0, 1,
+        +size, -size, +size,        0, 0, 1,
+        -size, -size, +size,        0, 0, 1,
+        // negative y
+        -size, -size, -size,        0, -1, 0,
+        +size, -size, -size,        0, -1, 0,
+        +size, -size, +size,        0, -1, 0,
+        -size, -size, +size,        0, -1, 0,
+        // positive y
+        -size, +size, -size,        0, 1, 0,
+        +size, +size, -size,        0, 1, 0,
+        +size, +size, +size,        0, 1, 0,
+        -size, +size, +size,        0, 1, 0,
     };
-    GLuint elements[] = {
-        0, 1, 3, 2,
-        0, 4, 6, 2,
-        0, 1, 5, 4,
-        7, 6, 2, 3,
-        7, 5, 4, 6,
-        7, 5, 1, 3
-    };
-    m_ebo_len = sizeof(elements) / sizeof(GLuint);
 
-    glGenBuffers(1, &m_position_vbo);
-    glGenBuffers(1, &m_ebo);
     glBindVertexArray(m_VAO_id);
 
-    // VBO
-    glBindBuffer(GL_ARRAY_BUFFER, m_position_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (void*)0);
+    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vbo_data), vbo_data, GL_STATIC_DRAW);
+
+    // attribute position
+    glVertexAttribPointer(/*index*/0, /*size*/3, GL_FLOAT, /*normalized*/false, /*stride*/6 * sizeof(GLfloat), /*offset*/(void*)(0));
     glEnableVertexAttribArray(0);
 
-    // EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+    // attribute normal
+    glVertexAttribPointer(/*index*/2, /*size*/3, GL_FLOAT, /*normalized*/false, /*stride*/6 * sizeof(GLfloat), /*offset*/(void*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
 
+    // unbind
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 Box_VAO::~Box_VAO()
 {
-    glDeleteBuffers(1, &m_position_vbo);
-    glDeleteBuffers(1, &m_ebo);
+    glDeleteBuffers(1, &m_vbo);
 }
 
 void Box_VAO::draw()
 {
     glBindVertexArray(m_VAO_id);
-    glDrawElements(GL_QUADS, m_ebo_len, GL_UNSIGNED_INT, (void*)0);
+    glDrawArrays(GL_QUADS, /*first*/0, /*count*/24);
 }
