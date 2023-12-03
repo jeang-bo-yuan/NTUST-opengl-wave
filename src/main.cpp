@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     // 顯示wave
     WaveWidget* wave = new WaveWidget;
     vlayout->addWidget(wave);
-    vlayout->setStretch(1, 1);
+    vlayout->setStretch(2, 1);
     wave->setMinimumSize(1000, 600);
 
     // connect
