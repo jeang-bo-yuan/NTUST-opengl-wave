@@ -26,7 +26,7 @@ DynamicHeightMap::DynamicHeightMap()
     }
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_color_texture[m_current_frame], 0);
 
-    glClearColor(0.f, 0.f, 0.f, 0.f);
+    glClearColor(0.f, 0.f, 0.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

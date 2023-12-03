@@ -223,6 +223,8 @@ void WaveWidget::initializeGL()
 
     glClearColor(.5f, .5f, .5f, 1.f);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     /// During init, enable debug output
     glEnable              ( GL_DEBUG_OUTPUT );
@@ -300,8 +302,10 @@ void WaveWidget::paintGL()
     m_wave_VAO_p->draw();
 
     // 水槽
+    glDepthMask(GL_FALSE);
     m_brick_shader_p->Use();
     m_skybox_VAO_p->draw_without_top();
+    glDepthMask(GL_TRUE);
 
     if (m_pixelization) {
         // 換回預設的frame buffer
