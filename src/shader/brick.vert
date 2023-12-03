@@ -10,6 +10,7 @@ uniform float WAVE_SIZE = 5;
 
 out vec3 vs_world_pos;
 out vec3 vs_normal;
+out vec3 vs_texcoord;
 
 void main() {
   // 向下移
@@ -20,4 +21,6 @@ void main() {
   // 我用-aNormal當作法向量，因為Box_VAO提供的normal是指向水槽外
   // 但我希望法向量是指向水槽內
   vs_normal = -aNormal; // 世界座標下的法向量
+
+  vs_texcoord = aPos;
 }

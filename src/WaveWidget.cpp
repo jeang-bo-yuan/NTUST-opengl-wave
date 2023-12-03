@@ -127,6 +127,9 @@ void WaveWidget::initializeGL()
         // skybox
         m_texture_cube_map_p = std::make_unique<qtTextureCubeMap>(":/right.jpg", ":/left.jpg", ":/top.jpg", ":/bottom.jpg", ":/front.jpg", ":/back.jpg");
 
+        // tile
+        m_texture_tile_p = std::make_unique<qtTextureCubeMap>(":/tile.jpg", ":/tile.jpg", ":/tile.jpg", ":/tile.jpg", ":/tile.jpg", ":/tile.jpg");
+
         // load height maps
         m_current_height_map = 0;
         QString path_format(":/img/%1.png");
@@ -304,6 +307,7 @@ void WaveWidget::paintGL()
     // 水槽
     glDepthMask(GL_FALSE);
     m_brick_shader_p->Use();
+    m_texture_tile_p->bind_to(0);
     m_skybox_VAO_p->draw_without_top();
     glDepthMask(GL_TRUE);
 

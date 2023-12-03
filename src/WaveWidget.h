@@ -107,6 +107,7 @@ private:
 
     // 水槽
     std::unique_ptr<Shader> m_brick_shader_p;
+    std::unique_ptr<qtTextureCubeMap> m_texture_tile_p;
 
     // skybox
     std::unique_ptr<Box_VAO> m_skybox_VAO_p;

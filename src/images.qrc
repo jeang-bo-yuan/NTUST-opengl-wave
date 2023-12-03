@@ -206,5 +206,6 @@
         <file>img/197.png</file>
         <file>img/198.png</file>
         <file>img/199.png</file>
+        <file alias="tile.jpg">img/tile.jpg</file>
     </qresource>
 </RCC>
