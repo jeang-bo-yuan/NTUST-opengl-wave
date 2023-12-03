@@ -189,7 +189,10 @@ void WaveWidget::initializeGL()
 
     /// @todo initialize the UBO
     m_matrices_UBO_p = std::make_unique<UBO>(2 * sizeof(glm::mat4), GL_DYNAMIC_DRAW);
-    this->set_view_matrix_from_arc_ball();
+    m_light_UBO_p = std::make_unique<UBO>(2 * sizeof(glm::vec4), GL_DYNAMIC_DRAW);
+    // 設置光源位置
+    m_light_UBO_p->BufferSubData(sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(glm::vec4(0, 2, 0, 1)));
+    this->update_view_from_arc_ball();
 
     /// set up FBO
     glGenFramebuffers(1, &m_frame_buffer);
@@ -265,6 +268,8 @@ void WaveWidget::paintGL()
 
     // 綁定矩陣
     m_matrices_UBO_p->bind_to(0);
+    // 綁定光源資訊
+    m_light_UBO_p->bind_to(1);
 
     // 繪製skybox
     m_texture_cube_map_p->bind_to(0);
@@ -345,7 +350,7 @@ void WaveWidget::mouseMoveEvent(QMouseEvent *e)
 
         m_Arc_Ball.set_alpha(m_last_alpha + glm::radians<float>(delta_x));
         m_Arc_Ball.set_beta(m_last_beta + glm::radians<float>(delta_y));
-        this->set_view_matrix_from_arc_ball();
+        this->update_view_from_arc_ball();
     }
 
     this->doneCurrent();
@@ -368,23 +373,18 @@ void WaveWidget::wheelEvent(QWheelEvent *e)
     }
 
     this->makeCurrent();
-    this->set_view_matrix_from_arc_ball();
+    this->update_view_from_arc_ball();
     this->doneCurrent();
 }
 
 // Private Methods /////////////////////////////////////////
 
-void WaveWidget::set_view_matrix_from_arc_ball()
+void WaveWidget::update_view_from_arc_ball()
 {
     glm::mat4 view = m_Arc_Ball.view_matrix();
     m_matrices_UBO_p->BufferSubData(0, sizeof(glm::mat4), glm::value_ptr(view));
 
-    m_shader_p->Use();
-    glUniform3fv(
-        glGetUniformLocation(m_shader_p->Program, "eye_position"),
-        1,
-        glm::value_ptr(m_Arc_Ball.calc_pos())
-        );
+    m_light_UBO_p->BufferSubData(0, sizeof(glm::vec4), glm::value_ptr(m_Arc_Ball.calc_pos()));
 }
 
 void WaveWidget::add_drop(float winX, float winY)

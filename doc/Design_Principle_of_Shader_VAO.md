@@ -12,18 +12,17 @@
 |1    |vec2|Texture Coordinate|
 |2    |vec3|Normal|
 
-- Vertex Shader的Uniform Block必須遵守下列規範
+- Shader的Uniform Block必須遵守下列規範
 
 |Binding|Type|Content|Description|
 |---    |--- |---    |---        |
 |0      |mat4|view_matrix|將世界座標轉成視空間座標的矩陣|
 |       |mat4|proj_matrix|將視空間轉成clip coordinate的矩陣|
 
-- Fragment Shader必需包含下列Uniform Data
-
-|Type|Name|Description|
-|--- |--- |---        |
-|vec3|eye_position|眼睛的位置|
+|Binding|Type|Content|Description|
+|---    |--- |---    |---        |
+|1      |vec4|eye_position|眼睛的位置，w忽略不看|
+|       |vec4|light_position|光源的位置。w為0是方向光源，w為1是點光源。|
 
 ## VAO
 

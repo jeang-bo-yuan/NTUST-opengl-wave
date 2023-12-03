@@ -2,6 +2,10 @@
 in vec3 vs_world_pos;
 in vec3 vs_normal;
 
+layout (std140, binding = 1) uniform LightBlock {
+  vec4 eye_position;
+  vec4 light_position;
+} Light;
 uniform vec3 eye_position;
 uniform samplerCube skybox;
 uniform uint how_to_render = 0;
@@ -39,11 +43,16 @@ uniform vec4 color_ambient = vec4(0.1, 0.2, 0.5, 1.0);
 uniform vec4 color_diffuse = vec4(0.2, 0.3, 0.6, 1.0);
 uniform vec4 color_specular = vec4(1.0, 1.0, 1.0, 1.0);
 uniform float shininess = 77.0f;
-uniform vec3 light_position = vec3(0, 2, 0);
 
 vec4 applyLight() {
-    vec3 light_direction = normalize(light_position - vs_world_pos);
-    vec3 EyeDirection = normalize(eye_position - vs_world_pos);
+    vec3 light_direction;
+    if (Light.light_position.w == 0) {
+      light_direction = normalize(Light.light_position.xyz);
+    }
+    else {
+      light_direction = normalize(Light.light_position.xyz - vs_world_pos);
+    }
+    vec3 EyeDirection = normalize(Light.eye_position.xyz - vs_world_pos);
     vec3 half_vector = normalize(light_direction + EyeDirection);
 
     float diffuse = max(0.0, dot(vs_normal, light_direction));

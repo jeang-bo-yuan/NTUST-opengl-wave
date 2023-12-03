@@ -85,8 +85,8 @@ protected:
     void wheelEvent(QWheelEvent*) override;
 
 private:
-    /// 將view matrix更新到UBO內
-    void set_view_matrix_from_arc_ball();
+    /// 將view matrix和eye position更新到UBO內
+    void update_view_from_arc_ball();
 
     /// 點擊某位置後，更新height map
     void add_drop(float winX, float winY);
@@ -94,6 +94,7 @@ private:
 private:
     // UBO
     std::unique_ptr<UBO> m_matrices_UBO_p;
+    std::unique_ptr<UBO> m_light_UBO_p;
 
     // sine wave
     std::unique_ptr<Wave_VAO> m_wave_VAO_p;
