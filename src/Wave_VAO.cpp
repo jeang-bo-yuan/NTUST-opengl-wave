@@ -7,7 +7,7 @@
 Wave_VAO::Wave_VAO(GLfloat size)
     : VAO_Interface()
 {
-    const float delta = 1 / 16.f;
+    const float delta = 1 / 32.f;
     // 畫在(-size, 0, -size) ~ (size, 0, size)
     // 每 1/16 取一個點
     std::vector<glm::vec3> point_arr;
