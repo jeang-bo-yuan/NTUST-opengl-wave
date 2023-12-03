@@ -91,6 +91,9 @@ private:
     /// 點擊某位置後，更新height map
     void add_drop(float winX, float winY);
 
+    /// 繪製水槽
+    void draw_tile();
+
 private:
     // UBO
     std::unique_ptr<UBO> m_matrices_UBO_p;

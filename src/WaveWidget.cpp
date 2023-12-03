@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <stddef.h>
+#include <algorithm>
 
 constexpr float WAVE_SIZE = 5;
 
@@ -305,11 +306,7 @@ void WaveWidget::paintGL()
     m_wave_VAO_p->draw();
 
     // 水槽
-    glDepthMask(GL_FALSE);
-    m_brick_shader_p->Use();
-    m_texture_tile_p->bind_to(0);
-    m_skybox_VAO_p->draw_without_top();
-    glDepthMask(GL_TRUE);
+    draw_tile();
 
     if (m_pixelization) {
         // 換回預設的frame buffer
@@ -418,6 +415,45 @@ void WaveWidget::add_drop(float winX, float winY)
             drop_pos.x, drop_pos.y
             );
     }
+}
+
+// Private Drawing ////////////////////////////////////////////////////////////////
+
+void WaveWidget::draw_tile()
+{
+    glDepthMask(GL_FALSE); // don't update depth buffer
+
+    // 要畫的面
+    constexpr Box_VAO::FACE faces[] = {Box_VAO::FACE::NEGATIVE_X, Box_VAO::FACE::POSITIVE_X,
+                                       Box_VAO::FACE::NEGATIVE_Z, Box_VAO::FACE::POSITIVE_Z,
+                                       Box_VAO::FACE::NEGATIVE_Y};
+    // 每面的中心點
+    constexpr glm::vec3 faces_center[] = {glm::vec3(-WAVE_SIZE, -WAVE_SIZE, 0), glm::vec3(WAVE_SIZE, -WAVE_SIZE, 0),
+                                          glm::vec3(0, -WAVE_SIZE, -WAVE_SIZE), glm::vec3(0, -WAVE_SIZE, WAVE_SIZE),
+                                          glm::vec3(0, -2 * WAVE_SIZE, 0)};
+    // 眼睛
+    const glm::vec3 eye_pos = m_Arc_Ball.calc_pos();
+
+    float faces_distance[5];
+    // 計算每面的中心和眼睛的距離
+    for (int i = 0; i < 5; ++i) {
+        faces_distance[i] = glm::distance(eye_pos, faces_center[i]);
+    }
+
+    // 依照距離排定繪製順序（由遠到近）
+    int drawing_order[5] = {0, 1, 2, 3, 4};
+    std::sort(drawing_order, drawing_order + 5, [faces_distance](int a, int b)->bool {
+        // 若a比b遠，則a要先畫
+        return faces_distance[a] > faces_distance[b];
+    });
+
+    m_brick_shader_p->Use();
+    m_texture_tile_p->bind_to(0);
+    for (int index : drawing_order) {
+        m_skybox_VAO_p->draw_face(faces[index]);
+    }
+
+    glDepthMask(GL_TRUE);
 }
 
 

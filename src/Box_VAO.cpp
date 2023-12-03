@@ -67,8 +67,8 @@ void Box_VAO::draw()
     glDrawArrays(GL_QUADS, /*first*/0, /*count*/24);
 }
 
-void Box_VAO::draw_without_top()
+void Box_VAO::draw_face(FACE face)
 {
     glBindVertexArray(m_VAO_id);
-    glDrawArrays(GL_QUADS, /*first*/0, /*count*/20);
+    glDrawArrays(GL_QUADS, /*first*/(int)face, /*count*/4);
 }

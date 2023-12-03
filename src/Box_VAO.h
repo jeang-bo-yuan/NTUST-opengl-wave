@@ -31,8 +31,18 @@ public:
     /// @details 畫出方塊的每一面
     void draw() override;
 
-    /// 繪製一個沒有「蓋子」的方塊
-    void draw_without_top();
+public:
+    enum class FACE {
+        NEGATIVE_X = 0,
+        POSITIVE_X = 4,
+        NEGATIVE_Z = 8,
+        POSITIVE_Z = 12,
+        NEGATIVE_Y = 16,
+        POSITIVE_Y = 20,
+    };
+
+    /// 繪製特定的面
+    void draw_face(Box_VAO::FACE face);
 };
 
 #endif // BOX_VAO_H
