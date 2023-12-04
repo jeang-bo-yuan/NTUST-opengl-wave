@@ -6,7 +6,6 @@ layout (std140, binding = 1) uniform LightBlock {
   vec4 eye_position;
   vec4 light_position;
 } Light;
-uniform vec3 eye_position;
 uniform samplerCube skybox;
 uniform uint how_to_render = 0;
 
@@ -20,7 +19,7 @@ void main() {
     FragColor = applyLight();
   }
   else {
-    vec3 I = normalize(vs_world_pos - eye_position);
+    vec3 I = normalize(vs_world_pos - Light.eye_position.xyz);
     vec3 normal = vs_normal;
 
     if (dot(normal, I) > 0)
