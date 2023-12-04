@@ -207,5 +207,9 @@
         <file>img/198.png</file>
         <file>img/199.png</file>
         <file alias="tile.jpg">img/tile.jpg</file>
+        <file alias="back-tile.jpg">img/back-with-tile.jpg</file>
+        <file alias="front-tile.jpg">img/front-with-tile.jpg</file>
+        <file alias="left-tile.jpg">img/left-with-tile.jpg</file>
+        <file alias="right-tile.jpg">img/right-with-tile.jpg</file>
     </qresource>
 </RCC>
