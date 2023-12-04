@@ -22,9 +22,6 @@ void main() {
     vec3 I = normalize(vs_world_pos - Light.eye_position.xyz);
     vec3 normal = vs_normal;
 
-    if (dot(normal, I) > 0)
-      normal = -vs_normal;
-
     vec3 R;
     if (how_to_render == 1) {
       R = reflect(I, normal);
@@ -33,7 +30,7 @@ void main() {
       R = refract(I, normal, 1.f / 1.33f);
     }
 
-    FragColor = texture(skybox, R + vs_world_pos);
+    FragColor = texture(skybox, R + vs_world_pos + vec3(0, 0.5, 0));
   }
 
 }
