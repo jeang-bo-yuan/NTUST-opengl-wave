@@ -7,7 +7,7 @@ const float PI = 3.1415926;
 uniform sampler2D u_water;
 uniform vec2 u_center;
 uniform float u_radius = 0.05;
-uniform float u_strength = 0.01;
+uniform float u_strength = 0.05;
 
 void main() {
   vec4 info = texture2D(u_water, TexCoord);
