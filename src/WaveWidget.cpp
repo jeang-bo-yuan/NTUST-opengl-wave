@@ -130,6 +130,7 @@ void WaveWidget::initializeGL()
 
         // tile
         m_texture_tile_p = std::make_unique<qtTextureCubeMap>(":/tile.jpg", ":/tile.jpg", ":/tile.jpg", ":/tile.jpg", ":/tile.jpg", ":/tile.jpg");
+        m_skybox_with_tile_p = std::make_unique<qtTextureCubeMap>(":/right-tile.jpg", ":/left-tile.jpg", ":/top.jpg", ":/tile.jpg", ":/front-tile.jpg", ":/back-tile.jpg");
 
         // load height maps
         m_current_height_map = 0;
@@ -303,6 +304,7 @@ void WaveWidget::paintGL()
 
     // 繪製wave
     m_shader_p->Use();
+    m_skybox_with_tile_p->bind_to(0);
     m_wave_VAO_p->draw();
 
     // 水槽
