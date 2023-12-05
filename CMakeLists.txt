@@ -25,7 +25,7 @@ FetchContent_Declare(GLM
 FetchContent_MakeAvailable(GLM)
 
 # Executables
-file(GLOB_RECURSE SHADER_SOURCE RELATIVE "${CMAKE_SOURCE_DIR}" CONFIGURE_DEPENDS "src/shader/*.vert" "src/shader/*.frag")
+file(GLOB_RECURSE SHADER_SOURCE RELATIVE "${CMAKE_SOURCE_DIR}" CONFIGURE_DEPENDS "src/shader/*.vert" "src/shader/*.frag" "src/shader/*.geom")
 add_executable(sine-wave
   src/ArcBall.h src/ArcBall.cpp
   src/DynamicHeightMap.h src/DynamicHeightMap.cpp
