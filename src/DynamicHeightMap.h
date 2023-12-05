@@ -6,6 +6,7 @@
 #include "Plane_VAO.h"
 #include "Shader.h"
 
+/// @brief 水面漣漪
 class DynamicHeightMap
 {
 private:
@@ -28,8 +29,8 @@ public:
 
     /**
      * @brief 在current frame新增drop
-     * @param x
-     * @param y
+     * @param x - texcture coordinate上一點的x座標
+     * @param y - texcture coordinate上一點的y座標
      * @pre 0 <= x,y <= 1
      */
     void add_drop(GLfloat x, GLfloat y);

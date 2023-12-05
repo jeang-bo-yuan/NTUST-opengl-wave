@@ -14,11 +14,11 @@
  * # 參數的意義
  * - center: 球心的位置
  * - r: 球的半徑，介於`[0.1, infinity)`間
- * - alpha: 從正x軸向正z軸旋轉的角度
- * - beta: 從正x軸向正y軸旋轉的角度，介於`[-pi/2, pi/2]`間
+ * - alpha: 方位角，`0`為正x軸，`pi/2`為正z軸
+ * - beta: 仰角，介於`[-pi/2, pi/2]`間
  *
  * # 座標系
- * x向右、y向上、z向前（OpenGL慣用的座標系）
+ * x向右、y向上、z射出紙面（OpenGL慣用的座標系）
  */
 class ArcBall
 {
