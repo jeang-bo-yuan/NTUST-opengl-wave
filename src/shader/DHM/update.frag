@@ -5,6 +5,8 @@ uniform sampler2D u_water;
 uniform vec2 u_dx = vec2(0.01, 0);
 uniform vec2 u_dy = vec2(0, 0.01);
 
+out vec4 FragColor;
+
 void main() {
   vec4 info = texture2D(u_water, TexCoord);
 
@@ -22,5 +24,5 @@ void main() {
   info.r += velocity;
   info.g = velocity;
 
-  gl_FragColor = info;
+  FragColor = info;
 }

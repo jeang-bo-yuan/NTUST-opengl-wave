@@ -13,6 +13,8 @@ uniform vec4 color_specular = vec4(0, 0, 0, 1.0);
 uniform float shininess = 1.0f;
 uniform samplerCube texture_tile;
 
+out vec4 FragColor;
+
 void main() {
   vec3 light_direction;
   if (Light.light_position.w == 0) {
@@ -26,13 +28,13 @@ void main() {
 
   // 若該面背對我
   if (dot(EyeDirection, vs_normal) < 0) {
-    gl_FragColor = vec4(1, 1, 1, 1);
+    FragColor = vec4(1, 1, 1, 1);
     float diffuse = max(0.0, dot(vs_normal, light_direction));
     float specular = pow(max(0.0, dot(vs_normal, half_vector)), shininess);
-    gl_FragColor = min(gl_FragColor * color_ambient, vec4(1.0)) + diffuse * color_diffuse + specular * color_specular;
-    gl_FragColor.a = 0.5;
+    FragColor = min(FragColor * color_ambient, vec4(1.0)) + diffuse * color_diffuse + specular * color_specular;
+    FragColor.a = 0.5;
   }
   else {
-    gl_FragColor = texture(texture_tile, vs_texcoord);
+    FragColor = texture(texture_tile, vs_texcoord);
   }
 }
