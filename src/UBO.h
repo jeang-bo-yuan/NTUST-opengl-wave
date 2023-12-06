@@ -13,9 +13,9 @@
 class UBO
 {
 private:
-    GLuint m_UBO_id;
-    GLenum m_usage;
-    GLsizeiptr m_size;
+    GLuint m_UBO_id; //!< UBO的名字
+    GLenum m_usage;  //!< 使用方式（如：GL_DYNAMIC_DRAW）
+    GLsizeiptr m_size;  //!< Buffer的大小
 
 public:
     /**
