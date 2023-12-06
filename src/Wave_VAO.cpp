@@ -3,29 +3,34 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include <assert.h>
+#include <cmath>
 
 Wave_VAO::Wave_VAO(GLfloat size)
     : VAO_Interface()
 {
     const float delta = 1 / 32.f;
     // 畫在(-size, 0, -size) ~ (size, 0, size)
-    // 每 1/16 取一個點
+    // 每 1/32 取一個點
     std::vector<glm::vec3> point_arr;
-    GLuint width = 0;
-    point_arr.reserve((32 * size + 1) * (32 * size + 1));
+    const GLuint width = static_cast<GLuint>(ceil(2 * size / delta) + 1);
+    point_arr.reserve(width * width);
     {
-        for (float z = -size; z <= size; z += delta) {
-            for (float x = -size; x <= size; x += delta) {
+        float z = -size;
+        for (GLuint r = 0; r < width; ++r) {
+            float x = -size;
+            for (GLuint c  = 0; c < width; ++c) {
                 point_arr.emplace_back(x, 0, z);
+
+                x += delta;
             }
-            ++width;
+
+            z += delta;
         }
     }
-    assert(point_arr.size() == (width * width));
 
     // 生成element array
     std::vector<GLuint> elem_arr;
-    elem_arr.reserve((32 * size) * (32 * size) * 2 * 3);
+    elem_arr.reserve((width - 1) * (width - 1) * 2 * 3);
     {
         auto to_index = [width](GLuint r, GLuint c)->GLuint {
             return r * width + c;
@@ -43,7 +48,7 @@ Wave_VAO::Wave_VAO(GLfloat size)
             }
         }
     }
-    m_num_of_elements = elem_arr.size();
+    m_num_of_elements = static_cast<GLuint>(elem_arr.size());
 
     glGenBuffers(1, &m_vbo_position);
     glGenBuffers(1, &m_ebo);
