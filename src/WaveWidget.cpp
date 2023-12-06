@@ -175,6 +175,7 @@ void WaveWidget::initializeGL()
         glUniform1i(glGetUniformLocation(m_shader_p->Program, "skybox"), 0);
         glUniform1i(glGetUniformLocation(m_shader_p->Program, "height_map"), 0);
         glUniform1f(glGetUniformLocation(m_shader_p->Program, "WAVE_SIZE"), WAVE_SIZE);
+        glUniform1i(glGetUniformLocation(m_shader_p->Program, "use_height_map"), GL_FALSE);
 
         m_DHM_p = std::make_unique<DynamicHeightMap>();
 
@@ -250,15 +251,19 @@ void WaveWidget::initializeGL()
     connect(&m_timer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
     m_timer.start();
 
-    this->use_sine_wave();
     qDebug() << "Everything OK!!!!!!!!!!!!!!!!!!!";
+    glUseProgram(0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void WaveWidget::resizeGL(int w, int h)
 {
+    qDebug() << "====== Window Resize then update projection matrix ==============";
+
     glm::mat4 proj = glm::perspective(glm::radians(50.f), (float)w / h, 0.1f, 200.f);
     // 更新UBO
-    this->makeCurrent();
     m_matrices_UBO_p->BufferSubData(sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(proj));
 
     // 更新FBO關聯的color buffer和depth buffer
@@ -267,7 +272,8 @@ void WaveWidget::resizeGL(int w, int h)
 
     glBindTexture(GL_TEXTURE_2D, m_depth_texture);
     glTexImage2D(GL_TEXTURE_2D, /* level */0, /* internal */GL_DEPTH_COMPONENT, width(), height(), 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-    this->doneCurrent();
+
+    qDebug() << "======= ResizeGL done ====================================";
 }
 
 void WaveWidget::paintGL()
