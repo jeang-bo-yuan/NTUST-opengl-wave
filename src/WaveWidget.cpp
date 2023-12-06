@@ -158,6 +158,7 @@ void WaveWidget::initializeGL()
         QMessageBox::critical(nullptr, "Load fail", ex.what());
         exit(EXIT_FAILURE);
     }
+    qDebug() << "Texture Loading ... Success";
 
     /// @todo set shader
     try {
@@ -186,6 +187,7 @@ void WaveWidget::initializeGL()
         QMessageBox::critical(nullptr, "Compiling Shader Failed", ex.what());
         exit(EXIT_FAILURE);
     }
+    qDebug() << "Shader loading ... Success";
 
     /// @todo initialize the VAO
     m_wave_VAO_p = std::make_unique<Wave_VAO>(WAVE_SIZE);
@@ -241,6 +243,7 @@ void WaveWidget::initializeGL()
     m_timer.start();
 
     this->use_sine_wave();
+    qDebug() << "Everything OK!!!!!!!!!!!!!!!!!!!";
 }
 
 void WaveWidget::resizeGL(int w, int h)

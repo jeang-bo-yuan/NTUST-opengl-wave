@@ -47,11 +47,6 @@ add_executable(sine-wave
 )
 # Set include directories
 target_include_directories(sine-wave PRIVATE include)
-# Make it a GUI application
-set_target_properties(sine-wave PROPERTIES
-  WIN32_EXECUTABLE True
-  MACOSX_BUNDLE True
-)
 # Link libraries
 target_link_libraries(sine-wave PRIVATE
   Qt${QT_MAJOR_VERSION}::Widgets
