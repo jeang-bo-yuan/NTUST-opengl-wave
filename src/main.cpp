@@ -42,6 +42,11 @@ int main(int argc, char *argv[])
     pixel->setChecked(false);
     buttons->addWidget(pixel);
 
+    // 是否更新畫面
+    QCheckBox* update = new QCheckBox("Update Screen");
+    update->setChecked(true);
+    buttons->addWidget(update);
+
     // 選擇波形
     QHBoxLayout* buttons2 = new QHBoxLayout;
     buttons2->setAlignment(Qt::AlignCenter);
@@ -67,6 +72,7 @@ int main(int argc, char *argv[])
     QObject::connect(reflect, &QRadioButton::clicked, wave, &WaveWidget::use_reflect);
     QObject::connect(refract, &QRadioButton::clicked, wave, &WaveWidget::use_refract);
     QObject::connect(pixel, &QCheckBox::toggled, wave, &WaveWidget::toggle_pixelization);
+    QObject::connect(update, &QCheckBox::toggled, wave, &WaveWidget::toggle_timer);
     QObject::connect(sine_wave, &QRadioButton::clicked, wave, &WaveWidget::use_sine_wave);
     QObject::connect(ripple, &QRadioButton::clicked, wave, &WaveWidget::use_ripple);
     QObject::connect(height_map, &QRadioButton::clicked, wave, &WaveWidget::use_height_map);

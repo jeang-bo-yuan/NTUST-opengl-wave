@@ -62,6 +62,14 @@ void WaveWidget::use_refract()
     this->doneCurrent();
 }
 
+void WaveWidget::toggle_timer(bool on)
+{
+    if (on)
+        m_timer.start();
+    else
+        m_timer.stop();
+}
+
 void WaveWidget::toggle_pixelization(bool on)
 {
     this->m_pixelization = on;

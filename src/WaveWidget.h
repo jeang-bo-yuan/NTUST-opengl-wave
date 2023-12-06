@@ -42,6 +42,12 @@ public slots:
     void use_refract();
 
     /**
+     * @brief 開或關閉timer
+     * @param on - 是否開啟
+     */
+    void toggle_timer(bool on);
+
+    /**
      * @brief 開啟或關閉pixelization
      * @param on - 為true時開啟
      */
